@@ -1,0 +1,20 @@
+# Synopsys VCS
+simv
+simv.daidir/
+csrc/
+ucli.key
+*.vpd
+*.vcd
+*.fsdb
+
+# Logs
+*.log
+
+# Temporários
+*.tmp
+*.bak
+*~
+
+# Sistema operacional
+.DS_Store
+__MACOSX/

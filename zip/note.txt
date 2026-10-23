@@ -1,0 +1,47 @@
+um error usando tb no spi 
+Compiler version X-2025.06-SP2_Full64; Runtime version X-2025.06-SP2_Full64;  Oct 19 22:47 2026
+
+TEST 1 - Reset values / version
+[PASS] cfg_key reset            = 00000000000000000000000000000000
+[PASS] cfg_iv reset             = 00000000000000000000000000000000
+[PASS] cfg_counter reset        = 0x00000000
+[PASS] cfg_num_blocks reset     = 0x00000001
+Error: "./minisoc_spi_tb.sv", 160: minisoc_spi_tb.check32: at time 5095000 ps
+VERSION mismatch: expected=0x00010000 observed=0x00010100
+
+TEST 2 - Program KEY
+[PASS] cfg_key                  = 000102030405060708090a0b0c0d0e0f
+[PASS] KEY2 readback            = 0x08090a0b
+
+TEST 3 - Program IV/counter/num_blocks
+[PASS] cfg_iv                   = ccccccccaaaaaaaaffffffffeeeeeeee
+[PASS] counter high             = 0x11223344
+[PASS] counter low              = 0x55667788
+[PASS] num blocks               = 0x00000100
+
+TEST 4 - CONTROL / START pulse
+[PASS] mode/decrypt             = 0x00000003
+[PASS] START pulse count        = 1
+[PASS] cfg_start returned low
+[PASS] CONTROL readback         = 0x00000006
+
+TEST 5 - STATUS readback
+[PASS] STATUS busy/error        = 0x0000012d
+[PASS] STATUS done              = 0x00000802
+
+TEST 6 - Write protection while busy
+[PASS] KEY0 protected           = 0x00010203
+[PASS] NUM_BLOCKS protected     = 0x00000100
+[PASS] START ignored while busy
+
+TEST 7 - LED status mapping
+Error: "./minisoc_spi_tb.sv", 345: minisoc_spi_tb.unnamed$$_0: at time 62686000 ps
+LED mapping mismatch: observed=1010x111
+
+========================================
+ MINISOC SPI TESTS FAILED: 2 error(s)
+========================================
+
+Fatal: "./minisoc_spi_tb.sv", 362: minisoc_spi_tb.unnamed$$_0: at time 62686000 ps
+$finish called from file "./minisoc_spi_tb.sv", line 362.
+$finish at simulation time             62686000
