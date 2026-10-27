@@ -14,74 +14,75 @@ verif/
     │
     ├── agents/
     │   ├── spi/
-    │   │   ├── spi_agent.sv
-    │   │   ├── spi_cfg.sv
-    │   │   ├── spi_item.sv
-    │   │   ├── spi_sequencer.sv
-    │   │   ├── spi_driver.sv
-    │   │   ├── spi_monitor.sv
+    │   │   ├── spi_agent.svh
+    │   │   ├── spi_cfg.svh
+    │   │   ├── spi_item.svh
+    │   │   ├── spi_sequencer.svh
+    │   │   ├── spi_driver.svh
+    │   │   ├── spi_monitor.svh
     │   │   └── spi_if.sv
     │   │
     │   ├── mem/
-    │   │   ├── mem_agent.sv
-    │   │   ├── mem_cfg.sv
-    │   │   ├── mem_item.sv
-    │   │   ├── mem_sequencer.sv
-    │   │   ├── mem_driver.sv
-    │   │   ├── mem_monitor.sv
+    │   │   ├── mem_agent.svh
+    │   │   ├── mem_cfg.svh
+    │   │   ├── mem_item.svh
+    │   │   ├── mem_sequencer.svh
+    │   │   ├── mem_driver.svh
+    │   │   ├── mem_monitor.svh
     │   │   └── mem_if.sv
     │   │
     │   ├── clk/
-    │   │   ├── clk_agent.sv
-    │   │   ├── clk_cfg.sv
-    │   │   ├── clk_item.sv
-    │   │   ├── clk_sequencer.sv
-    │   │   ├── clk_driver.sv
+    │   │   ├── clk_agent.svh
+    │   │   ├── clk_cfg.svh
+    │   │   ├── clk_item.svh
+    │   │   ├── clk_sequencer.svh
+    │   │   ├── clk_driver.svh
     │   │   └── clk_if.sv
     │   │
     │   ├── rst/
-    │   │   ├── rst_agent.sv
-    │   │   ├── rst_cfg.sv
-    │   │   ├── rst_item.sv
-    │   │   ├── rst_sequencer.sv
-    │   │   ├── rst_driver.sv
+    │   │   ├── rst_agent.svh
+    │   │   ├── rst_cfg.svh
+    │   │   ├── rst_item.svh
+    │   │   ├── rst_sequencer.svh
+    │   │   ├── rst_driver.svh
     │   │   └── rst_if.sv
     │   │
     │   ├── aes/
-    │   │   ├── aes_agent.sv
-    │   │   ├── aes_cfg.sv
-    │   │   ├── aes_monitor.sv
+    │   │   ├── aes_agent.svh
+    │   │   ├── aes_cfg.svh
+    │   │   ├── aes_monitor.svh
     │   │   └── aes_if.sv
     │   │
     │   └── pll/
-    │       ├── pll_agent.sv
-    │       ├── pll_monitor.sv
+    │       ├── pll_agent.svh
+    │       ├── pll_monitor.svh
     │       └── pll_if.sv
     │
     ├── env/
-    │   ├── minisoc_env.sv
-    │   ├── minisoc_env_cfg.sv
-    │   ├── minisoc_virtual_sequencer.sv
-    │   ├── minisoc_scb.sv
-    │   ├── spi_scb.sv
-    │   ├── mem_scb.sv
-    │   ├── aes_scb.sv
-    │   └── pll_checker.sv
+    │   ├── minisoc_env.svh
+    │   ├── minisoc_env_cfg.svh
+    │   ├── minisoc_virtual_sequencer.svh
+    │   ├── minisoc_scb.svh
+    │   ├── spi_scb.svh
+    │   ├── mem_scb.svh
+    │   ├── aes_scb.svh
+    │   └── pll_checker.svh
     │
     ├── sequences/
-    │   ├── spi_sequences.sv
-    │   ├── mem_sequences.sv
-    │   ├── clk_sequences.sv
-    │   ├── rst_sequences.sv
-    │   └── minisoc_virtual_sequences.sv
+    │   ├── spi_sequences.svh
+    │   ├── mem_sequences.svh
+    │   ├── clk_sequences.svh
+    │   ├── rst_sequences.svh
+    │   └── minisoc_virtual_sequences.svh
     │
     ├── tests/
-    │   ├── minisoc_test_base.sv
-    │   ├── minisoc_nominal_test.sv
-    │   ├── minisoc_pll_test.sv
-    │   ├── minisoc_reset_test.sv
-    │   ├── minisoc_consecutive_test.sv
-    │   └── minisoc_multiclock_test.sv
+    │   ├── minisoc_test_base.svh
+    │   ├── minisoc_nominal_test.svh
+    │   ├── minisoc_pll_test.svh
+    │   ├── minisoc_reset_test.svh
+    │   ├── minisoc_consecutive_test.svh
+    │   └── minisoc_multiclock_test.svh
     │
     └── refmod/
-        └── ref_mod.cpp
+        └── cpp/
+            └── refmod.cpp
