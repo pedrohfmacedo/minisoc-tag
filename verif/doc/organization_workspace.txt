@@ -1,0 +1,87 @@
+verif/
+├── doc/
+│   ├── CI-Expert_Fase2_Verification_Plan_v0.0.1.pdf
+│   ├── my_ditl_v0.0.1.pdf
+│   ├── uvm_structure_v0.0.2.png
+│   └── uvm_structure_v0.0.3.png
+│
+├── py/
+│   └── aes-128-bib-py.ipynb
+│
+└── tb/
+    ├── top_tb.sv
+    ├── top_assertions.sv
+    │
+    ├── agents/
+    │   ├── spi/
+    │   │   ├── spi_agent.sv
+    │   │   ├── spi_cfg.sv
+    │   │   ├── spi_item.sv
+    │   │   ├── spi_sequencer.sv
+    │   │   ├── spi_driver.sv
+    │   │   ├── spi_monitor.sv
+    │   │   └── spi_if.sv
+    │   │
+    │   ├── mem/
+    │   │   ├── mem_agent.sv
+    │   │   ├── mem_cfg.sv
+    │   │   ├── mem_item.sv
+    │   │   ├── mem_sequencer.sv
+    │   │   ├── mem_driver.sv
+    │   │   ├── mem_monitor.sv
+    │   │   └── mem_if.sv
+    │   │
+    │   ├── clk/
+    │   │   ├── clk_agent.sv
+    │   │   ├── clk_cfg.sv
+    │   │   ├── clk_item.sv
+    │   │   ├── clk_sequencer.sv
+    │   │   ├── clk_driver.sv
+    │   │   └── clk_if.sv
+    │   │
+    │   ├── rst/
+    │   │   ├── rst_agent.sv
+    │   │   ├── rst_cfg.sv
+    │   │   ├── rst_item.sv
+    │   │   ├── rst_sequencer.sv
+    │   │   ├── rst_driver.sv
+    │   │   └── rst_if.sv
+    │   │
+    │   ├── aes/
+    │   │   ├── aes_agent.sv
+    │   │   ├── aes_cfg.sv
+    │   │   ├── aes_monitor.sv
+    │   │   └── aes_if.sv
+    │   │
+    │   └── pll/
+    │       ├── pll_agent.sv
+    │       ├── pll_monitor.sv
+    │       └── pll_if.sv
+    │
+    ├── env/
+    │   ├── minisoc_env.sv
+    │   ├── minisoc_env_cfg.sv
+    │   ├── minisoc_virtual_sequencer.sv
+    │   ├── minisoc_scb.sv
+    │   ├── spi_scb.sv
+    │   ├── mem_scb.sv
+    │   ├── aes_scb.sv
+    │   └── pll_checker.sv
+    │
+    ├── sequences/
+    │   ├── spi_sequences.sv
+    │   ├── mem_sequences.sv
+    │   ├── clk_sequences.sv
+    │   ├── rst_sequences.sv
+    │   └── minisoc_virtual_sequences.sv
+    │
+    ├── tests/
+    │   ├── minisoc_test_base.sv
+    │   ├── minisoc_nominal_test.sv
+    │   ├── minisoc_pll_test.sv
+    │   ├── minisoc_reset_test.sv
+    │   ├── minisoc_consecutive_test.sv
+    │   └── minisoc_multiclock_test.sv
+    │
+    └── refmod/
+        └── ref_mod.cpp
