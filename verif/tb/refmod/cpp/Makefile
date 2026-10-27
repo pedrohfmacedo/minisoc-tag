@@ -7,8 +7,8 @@
 CRYPTOPP := $(shell brew --prefix cryptopp)
 
 main:
-	g++ -Wall -std=c++11 -I$(CRYPTOPP)/include -L$(CRYPTOPP)/lib -o prog main.cpp -lcryptopp
-	./prog
+    g++ -Wall -std=c++11 -o prog main.cpp -lcryptopp
+    ./prog
 
 clean:
 	rm -rf prog
