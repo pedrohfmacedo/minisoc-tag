@@ -13,8 +13,8 @@ class rst_item extends uvm_sequence_item;
     } rst_edge_e;
  
   rand bit is_high; // 0 or 1 
-  rand int unsigned duration; // Duração em time // rand time ?
-  rand int unsigned cycles; // Duração em ciclos (low)
+  rand int unsigned duration; // Duracao em ps para uma transicao assincrona
+  rand int unsigned cycles;   // Duracao em ciclos para uma transicao sincrona
   rand rst_sync_mode_e sync_mode;
   rand rst_edge_e edge_sel;
 
@@ -27,7 +27,7 @@ class rst_item extends uvm_sequence_item;
   // }
   constraint rst_c {
     if (sync_mode == RST_ASYNC) {
-        duration inside {[0:10000]};
+        duration inside {[1:10000]};
         cycles == 0;
         }
 
@@ -41,6 +41,7 @@ class rst_item extends uvm_sequence_item;
     `uvm_object_utils_begin(rst_item)
         `uvm_field_int(is_high, UVM_ALL_ON)
         `uvm_field_int(duration, UVM_ALL_ON)
+        `uvm_field_int(cycles, UVM_ALL_ON)
         `uvm_field_enum(rst_sync_mode_e, sync_mode, UVM_ALL_ON)
         `uvm_field_enum(rst_edge_e, edge_sel, UVM_ALL_ON)
     `uvm_object_utils_end

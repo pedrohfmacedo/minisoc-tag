@@ -5,6 +5,7 @@ class rst_agent extends uvm_agent;
     rst_driver rst_drv;
     rst_monitor rst_mon;
     rst_sequencer rst_seq;
+    rst_coverage rst_cov;
 
     // Construtor
     function new(string name = "rst_agent", uvm_component parent = null);
@@ -19,7 +20,7 @@ class rst_agent extends uvm_agent;
             `uvm_fatal("RST_CFG", "rst_cfg was not provided to rst_agent")
         uvm_config_db#(rst_cfg)::set(this, "rst_mon", "cfg", cfg);
         rst_mon = rst_monitor::type_id::create("rst_mon", this);
-
+        rst_cov = rst_coverage::type_id::create("rst_cov", this);
         // No agente ativo, crie o driver e o sequencer.
         if (cfg.is_active == UVM_ACTIVE) begin
             uvm_config_db#(rst_cfg)::set(this, "rst_drv", "cfg", cfg);
@@ -31,8 +32,11 @@ class rst_agent extends uvm_agent;
     // Connect Phase
     function void connect_phase(uvm_phase phase);
         super.connect_phase(phase);
-        if (cfg.is_active == UVM_ACTIVE)
+        if (cfg.is_active == UVM_ACTIVE) begin
             rst_drv.seq_item_port.connect(rst_seq.seq_item_export);
+        end
+
+        rst_mon.ap.connect(rst_cov.analysis_export);
     endfunction
 
 

@@ -3,7 +3,7 @@ class clk_driver extends uvm_component;
 
     // has-a
 	clk_cfg cfg;
-	virtual clk_if.driver vif;
+	virtual interface clk_if.driver vif;
 
 	function new(string name = "clk_driver", uvm_component parent = null);
 		super.new(name, parent);

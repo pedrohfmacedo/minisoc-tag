@@ -5,7 +5,7 @@ class rst_monitor extends uvm_monitor;
 
     // Configuracao, interface e porta TLM
     rst_cfg cfg;
-    virtual rst_if.monitor vif;
+    virtual interface rst_if.monitor vif;
     uvm_analysis_port #(rst_item) ap;
 
     // Constructor

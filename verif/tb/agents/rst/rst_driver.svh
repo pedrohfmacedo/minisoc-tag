@@ -4,7 +4,7 @@ class rst_driver extends uvm_driver #(rst_item);
     `uvm_component_utils(rst_driver)
 
     // Configuracao e interface virtual
-    virtual rst_if.driver vif;
+    virtual interface rst_if.driver vif;
     rst_cfg cfg;
 
     // Constructor
