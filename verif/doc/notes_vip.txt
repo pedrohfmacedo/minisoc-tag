@@ -1,0 +1,7 @@
+vip agent
+
+o clk_agent tem a cfg e o clk_driver
+clk_agent recebe a cfg(onde é configurado as informações do clock de ref) vi uvm_config db
+e repassa para o driver que passe via virtual interface.
+
+No driver tem 
