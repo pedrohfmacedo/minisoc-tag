@@ -40,7 +40,6 @@ class clk_driver extends uvm_component;
             // Gerando o clock confome cfg.
             #(cfg.time_low * 1ps);
             vif.clk = 1'b1;
-
             #(cfg.time_high * 1ps);
             vif.clk = 1'b0;
         end

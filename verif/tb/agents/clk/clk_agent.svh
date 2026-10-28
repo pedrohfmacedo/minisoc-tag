@@ -1,9 +1,11 @@
 class clk_agent extends uvm_agent;
     // Macros UVM
     `uvm_component_utils(clk_agent)
+    
     // has-a
     clk_cfg cfg;
     clk_driver clk_drv;
+    
     // Construtor
     function new(string name = "clk_agent", uvm_component parent = null);
         super.new(name, parent);
