@@ -41,6 +41,10 @@ module top_tb;
       null, "uvm_test_top", "clk_vif", clk_vif
     );
 
+    uvm_config_db#(virtual interface clk_if.monitor)::set(
+      null, "uvm_test_top", "clk_mon_vif", clk_vif
+    );
+
     uvm_config_db#(virtual interface rst_if.driver)::set(
       null, "uvm_test_top", "rst_drv_vif", rst_vif
     );

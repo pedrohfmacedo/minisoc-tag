@@ -8,7 +8,10 @@ package minisoc_pkg;
 
   // Clock agent
   `include "agents/clk/clk_cfg.svh"
+  `include "agents/clk/clk_item.svh"
+  `include "agents/clk/clk_sequencer.svh"
   `include "agents/clk/clk_driver.svh"
+  `include "agents/clk/clk_monitor.svh"
   `include "agents/clk/clk_agent.svh"
 
   // Reset agent: item/configuration must be declared before its components.
@@ -25,7 +28,8 @@ package minisoc_pkg;
   `include "env/minisoc_env.svh"
 
   // Reset sequence and initial UVM tests.
-  `include "sequences/rst_sequences.svh"
+  `include "agents/clk/clk_sequences.svh"
+  `include "agents/rst/rst_sequences.svh"
   `include "tests/minisoc_test_base.svh"
   `include "tests/minisoc_reset_test.svh"
 
