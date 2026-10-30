@@ -34,6 +34,16 @@ class rst_monitor extends uvm_monitor;
 
         rst_item item;
 
+        wait (!$isunknown(vif.rst_n));
+        item = rst_item::type_id::create("initial_reset");
+        item.is_high = vif.rst_n;
+        ap.write(item);
+
+        `uvm_info("RST_MON",
+            $sformatf("Reset inicial observado: rst_n = %0b",
+                      item.is_high),
+            UVM_MEDIUM)
+
         forever begin
 
             // Aguarda assert ou deassert do reset

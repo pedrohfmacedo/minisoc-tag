@@ -19,7 +19,7 @@ class minisoc_reset_test extends minisoc_test_base;
       deassert_edge == rst_item::RST_NEGEDGE;
     })
       `uvm_fatal("RST_TEST", "Falha ao randomizar a sequencia de reset")
-    seq.start(env.rst_agt.rst_seq);
+    seq.start(env.rst_agt.rst_seq); // seqr
     phase.drop_objection(this);
   endtask
 
