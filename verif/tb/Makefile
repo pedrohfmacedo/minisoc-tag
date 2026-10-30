@@ -9,6 +9,11 @@ RTL_DIR := ../../frontend/rtl
 OUT_DIR := build/vcs
 LOG_DIR := $(OUT_DIR)/logs
 SIMV    := $(OUT_DIR)/simv
+URG     ?= urg
+COV_DIR := $(OUT_DIR)/coverage.vdb
+COV_REPORT := $(OUT_DIR)/coverage_report
+COV_TYPES ?= line+cond+fsm+tgl+branch+assert
+COV_FLAGS := -cm $(COV_TYPES) -cm_dir $(COV_DIR)
 
 # Order matters: dependencies first; minisoc_top is compiled last.
 DUT_FILES := \
@@ -43,7 +48,7 @@ RUN_FLAGS := \
 	+UVM_TR_RECORD \
 	+UVM_LOG_RECORD
 
-.PHONY: all compile run gui clean help
+.PHONY: all compile run coverage gui clean help
 
 all: compile run
 
@@ -57,6 +62,14 @@ run:
 	@echo "[VCS] Running $(UVM_TESTNAME)"
 	$(SIMV) $(RUN_FLAGS) -l $(LOG_DIR)/sim.log
 
+coverage: COMPILE_FLAGS += $(COV_FLAGS)
+coverage: RUN_FLAGS += $(COV_FLAGS)
+coverage: compile
+	@echo "[VCS] Running $(UVM_TESTNAME) with coverage"
+	$(SIMV) $(RUN_FLAGS) -l $(LOG_DIR)/coverage.log
+	$(URG) -dir $(COV_DIR) -report $(COV_REPORT) -format text
+	@echo "[URG] Coverage report: $(COV_REPORT)"
+
 gui: compile
 	$(SIMV) -gui $(RUN_FLAGS) -l $(LOG_DIR)/sim_gui.log
 
@@ -66,6 +79,7 @@ clean:
 help:
 	@echo "make compile                 Compile the MiniSoC UVM testbench"
 	@echo "make run UVM_TESTNAME=<test> Run a selected UVM test"
+	@echo "make coverage UVM_TESTNAME=<test> Run test and generate coverage report"
 	@echo "make all UVM_TESTNAME=<test> Compile and run"
 	@echo "make gui UVM_TESTNAME=<test> Compile and open the GUI"
 	@echo "make clean                   Remove generated simulation files"
