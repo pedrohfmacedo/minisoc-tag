@@ -3,7 +3,7 @@
 SIM          ?= vcs
 UVM_VERSION  ?= uvm-1.2
 UVM_SEED     ?= 1
-UVM_TESTNAME ?= minisoc_reset_test
+UVM_TESTNAME ?= minisoc_test_reset
 
 TB_DIR := $(CURDIR)
 WORKSPACE ?= $(TB_DIR)/workspace
