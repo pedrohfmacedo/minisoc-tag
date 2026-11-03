@@ -4,6 +4,7 @@
 
 - `CI-Expert_Fase2_Verification_Plan_v0.0.1.pdf` - verification plan.
 - `my_ditl_v0.0.1.pdf` - project reference document.
+- `feat_future.txt` - future clock-agent feature suggestions, including duty cycle and jitter.
 - `notes_vip.txt` - VIP notes.
 - `organization_workspace.txt` - workspace organization notes.
 - `uvm_structure_v0.0.2.png` and `uvm_structure_v0.0.3.png` - UVM structure diagrams.
