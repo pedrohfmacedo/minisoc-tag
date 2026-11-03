@@ -9,6 +9,7 @@ module top_tb;
   // Interfaces dirigidas pelos agentes UVM.
   clk_if clk_vif();
   rst_if rst_vif(.clk(clk_vif.clk));
+  minisoc_env_cfg env_cfg;
 
   // Interfaces ainda sem agentes: valores inativos para o teste de reset.
   logic        spi_sclk = 1'b0;
@@ -37,20 +38,12 @@ module top_tb;
   );
 
   initial begin
-    uvm_config_db#(virtual interface clk_if.driver)::set(
-      null, "uvm_test_top", "clk_vif", clk_vif
-    );
+    env_cfg = minisoc_env_cfg::type_id::create("env_cfg");
+    env_cfg.clk_cfg_h.vif = clk_vif;
+    env_cfg.rst_cfg_h.vif = rst_vif;
 
-    uvm_config_db#(virtual interface clk_if.monitor)::set(
-      null, "uvm_test_top", "clk_mon_vif", clk_vif
-    );
-
-    uvm_config_db#(virtual interface rst_if.driver)::set(
-      null, "uvm_test_top", "rst_drv_vif", rst_vif
-    );
-
-    uvm_config_db#(virtual interface rst_if.monitor)::set(
-      null, "uvm_test_top", "rst_mon_vif", rst_vif
+    uvm_config_db#(minisoc_env_cfg)::set(
+      null, "uvm_test_top.env", "cfg", env_cfg
     );
 
     run_test();

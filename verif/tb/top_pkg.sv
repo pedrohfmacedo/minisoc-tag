@@ -9,6 +9,7 @@ package minisoc_pkg;
   // Clock agent
   `include "agents/clk/clk_cfg.svh"
   `include "agents/clk/clk_item.svh"
+  `include "agents/clk/coverage_clk.svh"
   `include "agents/clk/clk_sequencer.svh"
   `include "agents/clk/clk_driver.svh"
   `include "agents/clk/clk_monitor.svh"
@@ -20,7 +21,7 @@ package minisoc_pkg;
   `include "agents/rst/rst_sequencer.svh"
   `include "agents/rst/rst_driver.svh"
   `include "agents/rst/rst_monitor.svh"
-  `include "coverage/rst_coverage.svh/coverage_rst.svh"
+  `include "agents/rst/coverage_rst.svh"
   `include "agents/rst/rst_agent.svh"
 
   // Environment built from the currently implemented agents.
@@ -28,8 +29,8 @@ package minisoc_pkg;
   `include "env/minisoc_env.svh"
 
   // Reset sequence and initial UVM tests.
-  `include "agents/clk/clk_sequences.svh"
-  `include "agents/rst/rst_sequences.svh"
+  `include "sequences/clk_sequences.svh"
+  `include "sequences/rst_sequences.svh"
   `include "tests/minisoc_test_base.svh"
   `include "tests/minisoc_reset_test.svh"
 
