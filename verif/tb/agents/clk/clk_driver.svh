@@ -18,10 +18,7 @@ class clk_driver extends uvm_driver #(clk_item);
     if (!uvm_config_db#(clk_cfg)::get(this, "", "cfg", cfg))
       `uvm_fatal("CLK_CFG", "clk_cfg was not provided to clk_driver")
 
-    vif = cfg.drv_vif;
-
-    // Se a interface virtual do clock não for fornecida = fatal
-    if (vif == null)
+    if (!uvm_config_db#(virtual interface clk_if.driver)::get(this, "", "vif", vif))
       `uvm_fatal("CLK_VIF", "clk_if driver modport was not provided")
 
     // Se a cfg ofercer o clk inicial de periodo e duty_cycle fora do referencial = fatal
@@ -75,7 +72,7 @@ class clk_driver extends uvm_driver #(clk_item);
       @(negedge vif.clk);
 
       seq_item_port.item_done();
-      `uvm_info("CLK_DRV", $sformatf("Applied %0d ps period for %0d cycles" req.period_ps, req.cycles),
+      `uvm_info("CLK_DRV", $sformatf("Applied %0d ps period for %0d cycles", req.period_ps, req.cycles),
         UVM_MEDIUM)
     end
   endtask

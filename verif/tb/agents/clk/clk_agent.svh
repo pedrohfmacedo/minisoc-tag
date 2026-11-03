@@ -31,7 +31,9 @@ class clk_agent extends uvm_agent;
     // Se configurado na cfg como ativo
     if (cfg.is_active == UVM_ACTIVE) begin
       uvm_config_db#(clk_cfg)::set(this, "clk_drv", "cfg", cfg);
-      uvm_config_db#(virtual interface clk_if)::set(this, "clk_drv", "vif", clk_vif); //set
+      uvm_config_db#(virtual interface clk_if.driver)::set(
+        this, "clk_drv", "vif", clk_vif
+      );
       clk_drv = clk_driver::type_id::create("clk_drv", this);
       clk_seqr = clk_sequencer::type_id::create("clk_seqr", this);
     end
