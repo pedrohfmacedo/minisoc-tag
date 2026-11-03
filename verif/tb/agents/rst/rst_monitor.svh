@@ -3,9 +3,8 @@ class rst_monitor extends uvm_monitor;
 
     `uvm_component_utils(rst_monitor)
 
-    // Configuracao, interface e porta TLM
-    rst_cfg cfg;
-    virtual interface rst_if.monitor vif;
+    // Interface e porta TLM
+    virtual interface rst_if vif;
     uvm_analysis_port #(rst_item) ap;
 
     // Constructor
@@ -20,13 +19,8 @@ class rst_monitor extends uvm_monitor;
 
         ap = new("ap", this);
 
-        if (!uvm_config_db#(rst_cfg)::get(this, "", "cfg", cfg))
-            `uvm_fatal("RST_MON", "rst_cfg nao encontrada")
-
-        vif = cfg.mon_vif;
-
-        if (vif == null)
-            `uvm_fatal("RST_MON", "rst_if nao configurada")
+        if (!uvm_config_db#(virtual interface rst_if)::get(this, "", "vif", vif))
+            `uvm_fatal("RST_VIF", "rst_if was not provided to rst_monitor")
     endfunction
 
     // Run phase

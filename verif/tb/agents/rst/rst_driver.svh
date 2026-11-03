@@ -3,9 +3,7 @@ class rst_driver extends uvm_driver #(rst_item);
 
     `uvm_component_utils(rst_driver)
 
-    // Configuracao e interface virtual
-    virtual interface rst_if.driver vif;
-    rst_cfg cfg;
+    virtual interface rst_if vif;
 
     // Constructor
     function new(string name = "rst_driver",
@@ -17,13 +15,8 @@ class rst_driver extends uvm_driver #(rst_item);
     function void build_phase(uvm_phase phase);
         super.build_phase(phase);
 
-        if (!uvm_config_db#(rst_cfg)::get(this, "", "cfg", cfg))
-            `uvm_fatal("RST_DRV", "rst_cfg nao encontrada")
-
-        vif = cfg.drv_vif;
-
-        if (vif == null)
-            `uvm_fatal("RST_DRV", "rst_if nao configurada")
+        if (!uvm_config_db#(virtual interface rst_if)::get(this, "", "vif", vif))
+            `uvm_fatal("RST_VIF", "rst_if was not provided to rst_driver")
     endfunction
 
     // Run phase
