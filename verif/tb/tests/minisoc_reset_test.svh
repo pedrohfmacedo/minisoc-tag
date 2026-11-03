@@ -8,15 +8,12 @@ class minisoc_reset_test extends minisoc_test_base;
   endfunction
 
   task run_phase(uvm_phase phase);
-    rst_sequence seq;
+    rst_async_assert_sync_deassert_sequence seq;
 
     phase.raise_objection(this);
-    seq = rst_sequence::type_id::create("seq");
+    seq = rst_async_assert_sync_deassert_sequence::type_id::create("seq");
     if (!seq.randomize() with {
       num_pulses == 1;
-      assert_mode == rst_item::RST_ASYNC;
-      deassert_mode == rst_item::RST_SYNC;
-      deassert_edge == rst_item::RST_NEGEDGE;
     })
       `uvm_fatal("RST_TEST", "Falha ao randomizar a sequencia de reset")
     seq.start(env.rst_agt.rst_seq); // seqr
