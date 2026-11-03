@@ -1,0 +1,46 @@
+Sugestoes futuras para o agente de clock
+========================================
+
+Status
+------
+Estas ideias sao propostas para evolucao. Duty cycle variavel e jitter nao
+fazem parte dos requisitos implementados atualmente. A especificacao deve
+aprovar limites e criterios antes de transformar estas sugestoes em requisitos.
+
+1. Duty cycle configuravel
+--------------------------
+O agente atualmente representa as fases alta e baixa em `clk_item`, mas os
+segmentos fixos gerados por `send_period()` usam duty cycle de 50%. Uma evolucao
+poderia permitir configurar a porcentagem da fase alta, mantendo:
+
+- `time_high_ps + time_low_ps == period_ps`;
+- ambas as fases maiores ou iguais a resolucao minima do clock;
+- duty cycle dentro da faixa aprovada pela especificacao.
+
+Sugestoes de validacao:
+
+- testar o valor nominal de 50% e pelo menos um perfil assimetrico;
+- testar os limites permitidos, incluindo arredondamento para periodos curtos;
+- medir o duty cycle observado no monitor e cobrir apenas faixas exigidas.
+
+2. Jitter configuravel
+----------------------
+Uma evolucao poderia permitir jitter limitado por ciclo. A especificacao deve
+definir se o limite e absoluto (ps) ou relativo ao periodo nominal, alem da
+faixa permitida e da distribuicao esperada. A sequencia deve gerar valores
+reprodutiveis com a seed da simulacao e respeitar os limites do driver.
+
+Sugestoes de validacao:
+
+- comparar jitter desabilitado com jitter habilitado;
+- verificar que cada periodo observado fica dentro do limite especificado;
+- garantir que as fases alta e baixa permanecem validas apos aplicar o jitter;
+- cobrir faixas de magnitude relevantes, sem criar crosses desnecessarios.
+
+3. Atualizacoes necessarias
+--------------------------
+Quando os requisitos forem aprovados, revisar em conjunto `clk_cfg`, `clk_item`,
+`clk_driver`, `clk_monitor`, sequencias, covergroups e testes. Os testes devem
+ser deterministas por seed e verificar tanto os limites quanto os valores
+observados pelo monitor. Duty cycle e jitter devem permanecer fora do escopo de
+regressao obrigatoria ate serem definidos na especificacao.
