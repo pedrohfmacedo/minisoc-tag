@@ -49,4 +49,12 @@ module top_tb;
     run_test();
   end
 
+    initial begin
+    // Geracao opcional de ondas: executar com +DUMP_VCD (make waves).
+    if ($test$plusargs("DUMP_VCD")) begin
+      $dumpfile("clock_reset.vcd");
+      $dumpvars(0, clk_vif.clk, rst_vif.rst_n, dut.sys_rst_n, dut.pll_locked);
+    end
+  end
+
 endmodule

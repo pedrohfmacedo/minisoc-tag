@@ -33,5 +33,6 @@ package minisoc_pkg;
   `include "sequences/rst_sequences.svh"
   `include "tests/minisoc_test_base.svh"
   `include "tests/minisoc_reset_test.svh"
+  `include "tests/minisoc_clock_test.svh"
 
 endpackage
