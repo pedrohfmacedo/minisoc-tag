@@ -5,6 +5,7 @@ class minisoc_env extends uvm_env;
   minisoc_env_cfg cfg;
   clk_agent       clk_agt;
   rst_agent       rst_agt;
+  coverage_clk    clk_cov;
 
   function new(string name = "minisoc_env",
                uvm_component parent = null);
@@ -22,6 +23,12 @@ class minisoc_env extends uvm_env;
 
     clk_agt = clk_agent::type_id::create("clk_agt", this);
     rst_agt = rst_agent::type_id::create("rst_agt", this);
+    clk_cov = coverage_clk::type_id::create("clk_cov", this);
+  endfunction
+
+  function void connect_phase(uvm_phase phase);
+    super.connect_phase(phase);
+    clk_agt.clk_mon.ap.connect(clk_cov.analysis_export);
   endfunction
 
 endclass
