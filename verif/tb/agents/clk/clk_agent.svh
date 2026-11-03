@@ -6,6 +6,7 @@ class clk_agent extends uvm_agent;
   clk_driver clk_drv;
   clk_monitor clk_mon;
   clk_sequencer clk_seqr;
+  virtual clk_if clk_vif;
 
   // Constructor
   function new(string name = "clk_agent", uvm_component parent = null);
@@ -19,12 +20,18 @@ class clk_agent extends uvm_agent;
     // Se a configuração do clock não for fornecida = fatal
     if (!uvm_config_db#(clk_cfg)::get(this, "", "cfg", cfg))
       `uvm_fatal("CLK_CFG", "clk_cfg was not provided to clk_agent")      
-    uvm_config_db#(clk_cfg)::set(this, "clk_mon", "cfg", cfg);
-    clk_mon = clk_monitor::type_id::create("clk_mon", this);
 
+    clk_vif = cfg.vif;
+    if (clk_vif == null)
+      `uvm_fatal("CLK_VIF", "clk_if was not provided in clk_cfg")
+
+    uvm_config_db#(virtual interface clk_if)::set(this, "clk_mon", "vif", clk_vif); //set
+    clk_mon = clk_monitor::type_id::create("clk_mon", this);
+  
     // Se configurado na cfg como ativo
     if (cfg.is_active == UVM_ACTIVE) begin
       uvm_config_db#(clk_cfg)::set(this, "clk_drv", "cfg", cfg);
+      uvm_config_db#(virtual interface clk_if)::set(this, "clk_drv", "vif", clk_vif); //set
       clk_drv = clk_driver::type_id::create("clk_drv", this);
       clk_seqr = clk_sequencer::type_id::create("clk_seqr", this);
     end

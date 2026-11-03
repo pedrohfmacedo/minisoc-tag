@@ -75,9 +75,7 @@ class clk_driver extends uvm_driver #(clk_item);
       @(negedge vif.clk);
 
       seq_item_port.item_done();
-      `uvm_info("CLK_DRV",
-        $sformatf("Applied %0d ps period for %0d cycles",
-                  req.period_ps, req.cycles),
+      `uvm_info("CLK_DRV", $sformatf("Applied %0d ps period for %0d cycles" req.period_ps, req.cycles),
         UVM_MEDIUM)
     end
   endtask

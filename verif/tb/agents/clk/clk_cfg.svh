@@ -1,8 +1,7 @@
 class clk_cfg extends uvm_object;
 
-  // Has-a
-  virtual interface clk_if.driver  drv_vif;
-  virtual interface clk_if.monitor mon_vif;
+  virtual interface clk_if vif;
+
   // Agent ativo ou passivo?
   uvm_active_passive_enum is_active = UVM_ACTIVE;
 

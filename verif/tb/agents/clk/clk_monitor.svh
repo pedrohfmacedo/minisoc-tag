@@ -2,8 +2,7 @@ class clk_monitor extends uvm_monitor;
   `uvm_component_utils(clk_monitor)
 
   //has-a
-  clk_cfg cfg;
-  virtual interface clk_if.monitor vif;
+  virtual interface clk_if vif;
   uvm_analysis_port #(clk_item) ap;
 
   // Constructor
@@ -18,14 +17,8 @@ class clk_monitor extends uvm_monitor;
     // Create analysis port
     ap = new("ap", this);
 
-    // Se a configuração do clock não for fornecida = fatal
-    if (!uvm_config_db#(clk_cfg)::get(this, "", "cfg", cfg))
-      `uvm_fatal("CLK_CFG", "clk_cfg was not provided to clk_monitor")
-    vif = cfg.mon_vif;
-
-    // Se a interface do monitor não for fornecida = fatal
-    if (vif == null)
-      `uvm_fatal("CLK_VIF", "clk_if monitor modport was not provided")
+    if (!uvm_config_db#(virtual interface clk_if)::get(this, "", "vif", vif))
+      `uvm_fatal("CLK_VIF", "clk_if was not provided to clk_monitor")
   endfunction
 
   task run_phase(uvm_phase phase);

@@ -45,12 +45,11 @@ class clk_sequence extends uvm_sequence #(clk_item);
     max_cycles = 100;
   endfunction
 
+// Tarefa para enviar um segmento de clock com um período e um número de ciclos específicos
   task send_period(int unsigned period_ps, int unsigned cycles);
     clk_item item;
-
     if (period_ps < 2)
       `uvm_fatal("CLK_SEQ", "Clock period must be at least 2 ps")
-
     item = clk_item::type_id::create("item");
     start_item(item);
     item.period_ps = period_ps;
@@ -60,9 +59,9 @@ class clk_sequence extends uvm_sequence #(clk_item);
     finish_item(item);
   endtask
 
+// Tarefa para enviar um segmento de clock com um período e um número de ciclos aleatórios, dentro de limites especificados
   task send_random_period();
     clk_item item;
-
     item = clk_item::type_id::create("item");
     start_item(item);
     if (!item.randomize() with {
@@ -75,18 +74,20 @@ class clk_sequence extends uvm_sequence #(clk_item);
     finish_item(item);
   endtask
 
+  // Main task 
   task body();
     int unsigned period_ps;
     int unsigned cycles;
-
+    // Determine o modo de sequência de clock
     case (mode)
       CLK_FIXED_THEN_CHANGE: begin
         send_period(initial_period_ps, initial_cycles);
         send_period(changed_period_ps, changed_cycles);
       end
-
+      // Randomly select between two clock options
       CLK_RANDOM_TWO_OPTIONS: begin
         for (int unsigned i = 0; i < segment_count; i++) begin
+          // Randomly select one of the two clock options
           if (!std::randomize(period_ps) with {
             period_ps == initial_period_ps ||
             period_ps == changed_period_ps;
@@ -99,12 +100,67 @@ class clk_sequence extends uvm_sequence #(clk_item);
           send_period(period_ps, cycles);
         end
       end
-
+      // Generate fully random clock segments within specified limits
       CLK_FULL_RANDOM: begin
         for (int unsigned i = 0; i < segment_count; i++)
           send_random_period();
       end
     endcase
   endtask
+
+endclass
+
+class clk_500ps_then_1ns_sequence extends clk_sequence;
+
+  `uvm_object_utils(clk_500ps_then_1ns_sequence)
+
+  constraint clk_500ps_then_1ns_c {
+    mode == clk_sequence::CLK_FIXED_THEN_CHANGE;
+    initial_period_ps == 500;
+    changed_period_ps == 1000;
+    initial_cycles == 10;
+    changed_cycles == 10;
+  }
+
+  function new(string name = "clk_500ps_then_1ns_sequence");
+    super.new(name);
+  endfunction
+
+endclass
+
+class clk_period_limits_sequence extends clk_sequence;
+
+  `uvm_object_utils(clk_period_limits_sequence)
+
+  constraint clk_period_limits_c {
+    mode == clk_sequence::CLK_FIXED_THEN_CHANGE;
+    initial_period_ps == 100;
+    changed_period_ps == 10000;
+    initial_cycles == 1;
+    changed_cycles == 1;
+  }
+
+  function new(string name = "clk_period_limits_sequence");
+    super.new(name);
+  endfunction
+
+endclass
+
+class clk_bounded_random_sequence extends clk_sequence;
+
+  `uvm_object_utils(clk_bounded_random_sequence)
+
+  constraint clk_bounded_random_c {
+    mode == clk_sequence::CLK_FULL_RANDOM;
+    segment_count == 10;
+    min_period_ps == 100;
+    max_period_ps == 5000;
+    min_cycles == 1;
+    max_cycles == 20;
+  }
+
+  function new(string name = "clk_bounded_random_sequence");
+    super.new(name);
+  endfunction
 
 endclass
