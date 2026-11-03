@@ -1,6 +1,7 @@
-`ifndef RST_SEQUENCE_SVH
-`define RST_SEQUENCE_SVH
-
+// Sequencia base de reset: rst_sequence.
+// Suporta assert/deassert sincronos ou assincronos, selecao de borda,
+// configuracao de duracao/ciclos e um ou mais pulsos.
+// O cenario de minisoc_reset_test e especializado abaixo por heranca.
 class rst_sequence extends uvm_sequence #(rst_item);
 
   `uvm_object_utils(rst_sequence)
@@ -98,4 +99,21 @@ class rst_sequence extends uvm_sequence #(rst_item);
 
 endclass
 
-`endif
+// Case: fixa os modos e a borda do cenario,
+// reutilizando o envio de pulsos implementado pela classe base.
+class rst_async_assert_sync_deassert_sequence extends rst_sequence;
+
+  `uvm_object_utils(rst_async_assert_sync_deassert_sequence)
+
+  constraint rst_async_assert_sync_deassert_c {
+    assert_mode == rst_item::RST_ASYNC;
+    deassert_mode == rst_item::RST_SYNC;
+    deassert_edge == rst_item::RST_NEGEDGE;
+  }
+
+  function new(string name = "rst_async_assert_sync_deassert_sequence");
+    super.new(name);
+  endfunction
+
+endclass
+
