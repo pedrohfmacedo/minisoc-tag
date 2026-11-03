@@ -72,18 +72,19 @@ class rst_sequence extends uvm_sequence #(rst_item);
     finish_item(item);
   endtask
 
+  // Envia uma sequencia de pulsos de reset ao driver. (Main)
   task body;
     int unsigned total_pulses;
 
     total_pulses = num_pulses;
-
+    // Envia os pulsos de reset
     for (int i = 0; i < total_pulses; i++) begin
-      if (randomize_each_pulse && i > 0) begin
-        if (!this.randomize() with { num_pulses == total_pulses; })
+      if (randomize_each_pulse && i > 0) begin // Randomiza novamente os parametros do pulso, exceto o numero total de pulsos
+        if (!this.randomize() with { num_pulses == total_pulses; }) // Mantem o mesmo numero de pulsos
           `uvm_fatal("RST_SEQ", "Falha ao randomizar o pulso de reset")
       end
 
-      if (i > 0)
+      if (i > 0) // Aguarda o intervalo entre pulsos, se houver mais de um pulso
         #(interval_ps * 1ps);
 
       send_reset(1'b0, assert_mode, assert_edge,
@@ -112,6 +113,72 @@ class rst_async_assert_sync_deassert_sequence extends rst_sequence;
   }
 
   function new(string name = "rst_async_assert_sync_deassert_sequence");
+    super.new(name);
+  endfunction
+
+endclass
+
+class rst_fully_async_sequence extends rst_sequence;
+
+  `uvm_object_utils(rst_fully_async_sequence)
+
+  constraint rst_fully_async_c {
+    assert_mode == rst_item::RST_ASYNC;
+    deassert_mode == rst_item::RST_ASYNC;
+  }
+
+  function new(string name = "rst_fully_async_sequence");
+    super.new(name);
+  endfunction
+
+endclass
+
+class rst_sync_posedge_sequence extends rst_sequence;
+
+  `uvm_object_utils(rst_sync_posedge_sequence)
+
+  constraint rst_sync_posedge_c {
+    assert_mode == rst_item::RST_SYNC;
+    assert_edge == rst_item::RST_POSEDGE;
+    deassert_mode == rst_item::RST_SYNC;
+    deassert_edge == rst_item::RST_POSEDGE;
+  }
+
+  function new(string name = "rst_sync_posedge_sequence");
+    super.new(name);
+  endfunction
+
+endclass
+
+class rst_sync_negedge_sequence extends rst_sequence;
+
+  `uvm_object_utils(rst_sync_negedge_sequence)
+
+  constraint rst_sync_negedge_c {
+    assert_mode == rst_item::RST_SYNC;
+    assert_edge == rst_item::RST_NEGEDGE;
+    deassert_mode == rst_item::RST_SYNC;
+    deassert_edge == rst_item::RST_NEGEDGE;
+  }
+
+  function new(string name = "rst_sync_negedge_sequence");
+    super.new(name);
+  endfunction
+
+endclass
+
+class rst_async_pulse_train_sequence extends rst_sequence;
+
+  `uvm_object_utils(rst_async_pulse_train_sequence)
+
+  constraint rst_async_pulse_train_c {
+    assert_mode == rst_item::RST_ASYNC;
+    deassert_mode == rst_item::RST_ASYNC;
+    num_pulses inside {[3:10]};
+    interval_ps inside {[100:1000]};
+  }
+
+  function new(string name = "rst_async_pulse_train_sequence");
     super.new(name);
   endfunction
 
