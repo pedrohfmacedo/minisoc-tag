@@ -7,6 +7,7 @@ class clk_agent extends uvm_agent;
   clk_monitor clk_mon;
   clk_sequencer clk_seqr;
   virtual clk_if clk_vif;
+  clk_coverage clk_cov;
 
   // Constructor
   function new(string name = "clk_agent", uvm_component parent = null);
@@ -27,7 +28,7 @@ class clk_agent extends uvm_agent;
 
     uvm_config_db#(virtual interface clk_if)::set(this, "clk_mon", "vif", clk_vif); //set
     clk_mon = clk_monitor::type_id::create("clk_mon", this);
-  
+    clk_cov = clk_coverage::type_id::create("clk_cov", this);
     // Se configurado na cfg como ativo
     if (cfg.is_active == UVM_ACTIVE) begin
       uvm_config_db#(clk_cfg)::set(this, "clk_drv", "cfg", cfg);
