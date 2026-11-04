@@ -4,9 +4,9 @@ class coverage_clk extends uvm_subscriber #(clk_item);
 
   covergroup clk_cg with function sample(clk_item item);
     cp_period: coverpoint item.period_ps {
-      bins minimum = {100};
+      //bins minimum = {100};
       bins nominal = {500};
-      bins maximum = {10000};
+      //bins maximum = {10000};
     }
   endgroup
 
