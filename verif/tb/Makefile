@@ -4,6 +4,7 @@ SIM          ?= vcs
 UVM_VERSION  ?= uvm-1.2
 UVM_SEED     ?= 1
 UVM_TESTNAME ?= minisoc_test_reset
+VERDI       ?= verdi
 
 TB_DIR := $(CURDIR)
 WORKSPACE ?= $(TB_DIR)/workspace
@@ -51,7 +52,7 @@ RUN_FLAGS := \
 	+UVM_TR_RECORD \
 	+UVM_LOG_RECORD
 
-.PHONY: all compile run coverage gui clean help
+.PHONY: all compile run coverage gui clean help coverage_verdi
 
 all: compile run
 
@@ -73,6 +74,11 @@ coverage: compile
 	cd $(OUT_DIR) && $(URG) -dir $(COV_DIR) -report $(COV_REPORT) -format text
 	@echo "[URG] Coverage report: $(COV_REPORT)"
 
+coverage_verdi:
+	@test -d "$(COV_DIR)" || { echo "[VERDI] Coverage DB not found at $(COV_DIR). Run 'make coverage UVM_TESTNAME=<test>' first."; exit 1; }
+	@echo "[VERDI] Opening coverage database: $(COV_DIR)"
+	cd $(OUT_DIR) && $(VERDI) -cov -covdir $(COV_DIR)
+
 gui: compile
 	cd $(OUT_DIR) && $(SIMV) -gui $(RUN_FLAGS) -l $(LOG_DIR)/sim_gui.log
 
@@ -84,6 +90,7 @@ help:
 	@echo "make compile                 Compile the MiniSoC UVM testbench"
 	@echo "make run UVM_TESTNAME=<test> Run a selected UVM test"
 	@echo "make coverage UVM_TESTNAME=<test> Run test and generate coverage report"
+	@echo "make coverage_verdi          Open the generated Verdi coverage database"
 	@echo "make all UVM_TESTNAME=<test> Compile and run"
 	@echo "make gui UVM_TESTNAME=<test> Compile and open the GUI"
 	@echo "make clean                   Remove generated simulation files"

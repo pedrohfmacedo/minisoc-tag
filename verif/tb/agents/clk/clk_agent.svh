@@ -6,7 +6,7 @@ class clk_agent extends uvm_agent;
   clk_driver clk_drv;
   clk_monitor clk_mon;
   clk_sequencer clk_seqr;
-  virtual clk_if clk_vif;
+  virtual interface clk_if clk_vif;
   clk_coverage clk_cov;
 
   // Constructor
@@ -42,8 +42,10 @@ class clk_agent extends uvm_agent;
 
   function void connect_phase(uvm_phase phase);
     super.connect_phase(phase);
-    if (cfg.is_active == UVM_ACTIVE)
+    if (cfg.is_active == UVM_ACTIVE) begin
       clk_drv.seq_item_port.connect(clk_seqr.seq_item_export);
+    end
+    clk_mon.ap.connect(clk_cov.analysis_export);
   endfunction
 
 endclass
