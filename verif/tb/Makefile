@@ -3,7 +3,7 @@
 SIM          ?= vcs
 UVM_VERSION  ?= uvm-1.2
 UVM_SEED     ?= 1
-UVM_TESTNAME ?= minisoc_test_reset
+UVM_TESTNAME ?= minisoc_test_reset_clock
 VERDI       ?= verdi
 
 TB_DIR := $(CURDIR)
@@ -54,7 +54,7 @@ RUN_FLAGS := \
 
 .PHONY: all compile run coverage gui clean help coverage_verdi
 
-all: compile run
+all: clean compile run
 
 compile:
 	@mkdir -p $(LOG_DIR)
@@ -65,6 +65,9 @@ run:
 	@mkdir -p $(LOG_DIR)
 	@echo "[VCS] Running $(UVM_TESTNAME)"
 	cd $(OUT_DIR) && $(SIMV) $(RUN_FLAGS) -l $(LOG_DIR)/sim.log
+	
+gui: compile
+	cd $(OUT_DIR) && $(SIMV) -gui $(RUN_FLAGS) -l $(LOG_DIR)/sim_gui.log
 
 coverage: COMPILE_FLAGS += $(COV_FLAGS)
 coverage: RUN_FLAGS += $(COV_FLAGS)
@@ -79,8 +82,6 @@ coverage_verdi:
 	@echo "[VERDI] Opening coverage database: $(COV_DIR)"
 	cd $(OUT_DIR) && $(VERDI) -cov -covdir $(COV_DIR)
 
-gui: compile
-	cd $(OUT_DIR) && $(SIMV) -gui $(RUN_FLAGS) -l $(LOG_DIR)/sim_gui.log
 
 clean:
 	rm -rf $(WORKSPACE)

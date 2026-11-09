@@ -15,7 +15,7 @@ package minisoc_pkg;
   `include "agents/clk/clk_monitor.svh"
   `include "agents/clk/clk_agent.svh"
 
-  // Reset agent: item/configuration must be declared before its components.
+  // Reset agent
   `include "agents/rst/rst_item.svh"
   `include "agents/rst/rst_cfg.svh"
   `include "agents/rst/rst_sequencer.svh"
@@ -24,17 +24,32 @@ package minisoc_pkg;
   `include "agents/rst/rst_coverage.svh"
   `include "agents/rst/rst_agent.svh"
 
-  // Environment built from the currently implemented agents.
+  // Environment
   `include "env/minisoc_env_cfg.svh"
   `include "env/minisoc_env.svh"
 
-  // Reset sequence and initial UVM tests.
-  `include "sequences/clk_sequences.svh"
-  `include "sequences/rst_sequences.svh"
+  // Clock sequences
+  `include "sequences/clk/clk_sequence.svh"
+  `include "sequences/clk/clk_500ps_then_1ns_sequence.svh"
+  `include "sequences/clk/clk_period_limits_sequence.svh"
+  `include "sequences/clk/clk_bounded_random_sequence.svh"
+  `include "sequences/clk/clk_random_constrained_sequence.svh"
+
+  // Reset sequences
+  `include "sequences/rst/rst_sequence.svh"
+  `include "sequences/rst/rst_async_assert_sync_deassert_sequence.svh"
+  `include "sequences/rst/rst_fully_async_sequence.svh"
+  `include "sequences/rst/rst_sync_posedge_sequence.svh"
+  `include "sequences/rst/rst_sync_negedge_sequence.svh"
+  `include "sequences/rst/rst_async_pulse_train_sequence.svh"
+  `include "sequences/rst/rst_random_constrained_sequence.svh"
+
+  // Tests
   `include "tests/minisoc_test_base.svh"
   `include "tests/minisoc_reset_test.svh"
   `include "tests/minisoc_test_reset.svh"
   `include "tests/minisoc_test_clock.svh"
   `include "tests/minisoc_test_reset_clock.svh"
+  `include "tests/minisoc_test_random_constrained.svh"
 
 endpackage
