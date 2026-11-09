@@ -1,0 +1,49 @@
+class rst_agent extends uvm_agent;
+    `uvm_component_utils(rst_agent)
+    // has-a
+    rst_cfg cfg;
+    rst_driver rst_drv;
+    rst_monitor rst_mon;
+    rst_sequencer rst_seq;
+    rst_coverage rst_cov;
+    virtual interface rst_if rst_vif;
+
+    // Construtor
+    function new(string name = "rst_agent", uvm_component parent = null);
+        super.new(name, parent);
+    endfunction
+
+    // Build phase
+    function void build_phase(uvm_phase phase);
+        super.build_phase(phase);
+        // Se a configuração do reset não for fornecida = fatal
+        if (!uvm_config_db#(rst_cfg)::get(this, "", "cfg", cfg))
+            `uvm_fatal("RST_CFG", "rst_cfg was not provided to rst_agent")
+
+        rst_vif = cfg.vif;
+        if (rst_vif == null)
+            `uvm_fatal("RST_VIF", "rst_if was not provided in rst_cfg")
+
+        uvm_config_db#(virtual interface rst_if)::set(this, "rst_mon", "vif", rst_vif);
+        rst_mon = rst_monitor::type_id::create("rst_mon", this);
+        rst_cov = rst_coverage::type_id::create("rst_cov", this);
+        // No agente ativo, crie o driver e o sequencer.
+        if (cfg.is_active == UVM_ACTIVE) begin
+            uvm_config_db#(virtual interface rst_if)::set(this, "rst_drv", "vif", rst_vif);
+            rst_drv = rst_driver::type_id::create("rst_drv", this);
+            rst_seq = rst_sequencer::type_id::create("rst_seq", this);
+        end
+    endfunction
+
+    // Connect Phase
+    function void connect_phase(uvm_phase phase);
+        super.connect_phase(phase);
+        if (cfg.is_active == UVM_ACTIVE) begin
+            rst_drv.seq_item_port.connect(rst_seq.seq_item_export);
+        end
+
+        rst_mon.ap.connect(rst_cov.analysis_export);
+    endfunction
+
+
+endclass

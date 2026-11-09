@@ -10,7 +10,8 @@ verif/
 │
 └── tb/
     ├── top_tb.sv
-    ├── top_assertions.sv
+    ├── assertions/
+    │   └── top_assertions.sv
     │
     ├── agents/
     │   ├── spi/
@@ -19,8 +20,7 @@ verif/
     │   │   ├── spi_item.svh
     │   │   ├── spi_sequencer.svh
     │   │   ├── spi_driver.svh
-    │   │   ├── spi_monitor.svh
-    │   │   └── spi_if.sv
+    │   │   └── spi_monitor.svh
     │   │
     │   ├── mem/
     │   │   ├── mem_agent.svh
@@ -28,35 +28,36 @@ verif/
     │   │   ├── mem_item.svh
     │   │   ├── mem_sequencer.svh
     │   │   ├── mem_driver.svh
-    │   │   ├── mem_monitor.svh
-    │   │   └── mem_if.sv
+    │   │   └── mem_monitor.svh
     │   │
     │   ├── clk/
     │   │   ├── clk_agent.svh
     │   │   ├── clk_cfg.svh
-    │   │   ├── clk_item.svh
-    │   │   ├── clk_sequencer.svh
-    │   │   ├── clk_driver.svh
-    │   │   └── clk_if.sv
+    │   │   └── clk_driver.svh
     │   │
     │   ├── rst/
     │   │   ├── rst_agent.svh
     │   │   ├── rst_cfg.svh
     │   │   ├── rst_item.svh
     │   │   ├── rst_sequencer.svh
-    │   │   ├── rst_driver.svh
-    │   │   └── rst_if.sv
+    │   │   └── rst_driver.svh
     │   │
     │   ├── aes/
     │   │   ├── aes_agent.svh
     │   │   ├── aes_cfg.svh
-    │   │   ├── aes_monitor.svh
-    │   │   └── aes_if.sv
+    │   │   └── aes_monitor.svh
     │   │
     │   └── pll/
     │       ├── pll_agent.svh
-    │       ├── pll_monitor.svh
-    │       └── pll_if.sv
+    │       └── pll_monitor.svh
+    │
+    ├── interfaces/
+    │   ├── spi_if.sv
+    │   ├── mem_if.sv
+    │   ├── clk_if.sv
+    │   ├── rst_if.sv
+    │   ├── aes_if.sv
+    │   └── pll_if.sv
     │
     ├── env/
     │   ├── minisoc_env.svh
@@ -71,7 +72,6 @@ verif/
     ├── sequences/
     │   ├── spi_sequences.svh
     │   ├── mem_sequences.svh
-    │   ├── clk_sequences.svh
     │   ├── rst_sequences.svh
     │   └── minisoc_virtual_sequences.svh
     │

@@ -1,0 +1,134 @@
+Driver fix para clock e reset randomizados
+
+Problema identificado
+- O clock driver estava gerando clock em duas threads ao mesmo tempo.
+- O reset driver aplicava o novo valor somente ao final da transacao, sem gerar um pulso real e variavel.
+- Isso impedia a observacao de periodicidade real no clock e de variacao real no reset.
+
+Correcao sugerida para clk_driver
+
+class clk_driver extends uvm_driver #(clk_item);
+  `uvm_component_utils(clk_driver)
+
+  clk_cfg cfg;
+  virtual interface clk_if.driver vif;
+  int unsigned time_low_ps;
+  int unsigned time_high_ps;
+
+  function new(string name = "clk_driver", uvm_component parent = null);
+    super.new(name, parent);
+  endfunction
+
+  function void build_phase(uvm_phase phase);
+    super.build_phase(phase);
+
+    if (!uvm_config_db#(clk_cfg)::get(this, "", "cfg", cfg))
+      `uvm_fatal("CLK_CFG", "clk_cfg was not provided to clk_driver")
+
+    if (!uvm_config_db#(virtual interface clk_if.driver)::get(this, "", "vif", vif))
+      `uvm_fatal("CLK_VIF", "clk_if driver modport was not provided")
+
+    if (cfg.min_period_ps < 2 ||
+        cfg.min_period_ps > cfg.period_ps ||
+        cfg.period_ps > cfg.max_period_ps ||
+        cfg.time_low_ps == 0 ||
+        cfg.time_high_ps == 0 ||
+        cfg.time_low_ps + cfg.time_high_ps != cfg.period_ps)
+      `uvm_fatal("CLK_TIMING", "Invalid initial clock period or duty cycle")
+
+    time_low_ps = cfg.time_low_ps;
+    time_high_ps = cfg.time_high_ps;
+  endfunction
+
+  task run_phase(uvm_phase phase);
+    clk_item req;
+
+    vif.clk = 1'b0;
+
+    forever begin
+      seq_item_port.get_next_item(req);
+
+      if (req.period_ps < cfg.min_period_ps ||
+          req.period_ps > cfg.max_period_ps ||
+          req.time_low_ps == 0 ||
+          req.time_high_ps == 0 ||
+          req.time_low_ps + req.time_high_ps != req.period_ps) begin
+        `uvm_fatal("CLK_ITEM", "Clock item has an invalid period or duty cycle")
+      end
+
+      repeat (req.cycles) begin
+        vif.clk = 1'b0;
+        #(req.time_low_ps);
+        vif.clk = 1'b1;
+        #(req.time_high_ps);
+      end
+
+      seq_item_port.item_done();
+      `uvm_info("CLK_DRV",
+        $sformatf("Applied %0d ps period for %0d cycles", req.period_ps, req.cycles),
+        UVM_MEDIUM)
+    end
+  endtask
+
+endclass
+
+Correcao sugerida para rst_driver
+
+class rst_driver extends uvm_driver #(rst_item);
+
+  `uvm_component_utils(rst_driver)
+
+  virtual interface rst_if vif;
+
+  function new(string name = "rst_driver",
+               uvm_component parent = null);
+    super.new(name, parent);
+  endfunction
+
+  function void build_phase(uvm_phase phase);
+    super.build_phase(phase);
+
+    if (!uvm_config_db#(virtual interface rst_if)::get(this, "", "vif", vif))
+      `uvm_fatal("RST_VIF", "rst_if was not provided to rst_driver")
+  endfunction
+
+  task run_phase(uvm_phase phase);
+    vif.rst_n = 1'b1;
+
+    forever begin
+      seq_item_port.get_next_item(req);
+
+      if (req.sync_mode == rst_item::RST_ASYNC) begin
+        vif.rst_n = req.is_high;
+        #(req.duration * 1ps);
+      end
+      else begin
+        if (req.is_high == 1'b0) begin
+          if (req.edge_sel == rst_item::RST_POSEDGE)
+            repeat (req.cycles) @(posedge vif.clk);
+          else
+            repeat (req.cycles) @(negedge vif.clk);
+          vif.rst_n = 1'b0;
+        end
+        else begin
+          if (req.edge_sel == rst_item::RST_POSEDGE)
+            repeat (req.cycles) @(posedge vif.clk);
+          else
+            repeat (req.cycles) @(negedge vif.clk);
+          vif.rst_n = 1'b1;
+        end
+      end
+
+      seq_item_port.item_done();
+    end
+  endtask
+
+endclass
+
+Resultado esperado
+- O clock fica periodico e consistente com a configuracao enviada pela sequence.
+- O reset passa a gerar nivel efetivo durante duracao real ou ciclos de clock, conforme o modo.
+- As sequences randomizadas ficam visivelmente mais reais e validas dentro do espaco legal do CI-Expert Fase 2.
+
+Observacao
+- Este arquivo documenta a correcao logica que deve ser aplicada nos drivers, sem alterar os cenarios existentes.
