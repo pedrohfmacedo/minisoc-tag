@@ -1,11 +1,17 @@
 # Synopsys VCS
+workspace/
+verdiLog/
 simv
+xcelium.d
 simv.daidir/
 csrc/
 ucli.key
 *.vpd
 *.vcd
 *.fsdb
+*.history
+*.rc
+*.conf
 
 # Logs
 *.log
