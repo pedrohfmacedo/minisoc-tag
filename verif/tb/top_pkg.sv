@@ -30,6 +30,7 @@ package minisoc_pkg;
 
   // Clock sequences
   `include "sequences/clk/clk_sequence.svh"
+  `include "sequences/clk/clk_2ghz_sequence.svh"
   `include "sequences/clk/clk_500ps_then_1ns_sequence.svh"
   `include "sequences/clk/clk_period_limits_sequence.svh"
   `include "sequences/clk/clk_bounded_random_sequence.svh"
@@ -51,5 +52,6 @@ package minisoc_pkg;
   `include "tests/minisoc_test_clock.svh"
   `include "tests/minisoc_test_reset_clock.svh"
   `include "tests/minisoc_test_random_constrained.svh"
+  `include "tests/minisoc_test_clk_2ghz.svh"
 
 endpackage
