@@ -3,7 +3,7 @@ class clk_driver extends uvm_driver #(clk_item);
 
   //has-a
   clk_cfg cfg;
-  virtual interface clk_if.driver vif;
+  virtual interface clk_if vif;
   int unsigned time_low_ps;
   int unsigned time_high_ps;
   
@@ -18,8 +18,8 @@ class clk_driver extends uvm_driver #(clk_item);
     if (!uvm_config_db#(clk_cfg)::get(this, "", "cfg", cfg))
       `uvm_fatal("CLK_CFG", "clk_cfg was not provided to clk_driver")
 
-    if (!uvm_config_db#(virtual interface clk_if.driver)::get(this, "", "vif", vif))
-      `uvm_fatal("CLK_VIF", "clk_if driver modport was not provided")
+    if (!uvm_config_db#(virtual interface clk_if)::get(this, "", "vif", vif))
+      `uvm_fatal("CLK_VIF", "clk_if was not provided to clk_driver")
 
     // Se a cfg ofercer o clk inicial de periodo e duty_cycle fora do referencial = fatal
     if (cfg.min_period_ps < 2 || cfg.min_period_ps > cfg.period_ps || cfg.period_ps > cfg.max_period_ps || cfg.time_low_ps == 0 || cfg.time_high_ps == 0 ||
