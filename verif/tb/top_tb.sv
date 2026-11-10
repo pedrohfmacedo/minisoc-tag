@@ -9,6 +9,7 @@ module top_tb;
   // Interfaces dirigidas pelos agentes UVM.
   clk_if clk_vif();
   rst_if rst_vif(.clk(clk_vif.clk));
+  mem_if mem_vif();
   minisoc_env_cfg env_cfg;
 
   // Interfaces ainda sem agentes: valores inativos para o teste de reset.
@@ -17,12 +18,6 @@ module top_tb;
   logic        spi_mosi = 1'b0;
   logic        spi_miso;
 
-  logic        mem_clk     = 1'b0;
-  logic [31:0] mem_i_data  = '0;
-  logic        mem_i_wr_en = 1'b0;
-  logic [9:0]  mem_i_addr  = '0;
-  logic [31:0] mem_o_data;
-
   minisoc_top dut (
     .clk         (clk_vif.clk),
     .rst_n       (rst_vif.rst_n),
@@ -30,17 +25,18 @@ module top_tb;
     .spi_cs_n    (spi_cs_n),
     .spi_mosi    (spi_mosi),
     .spi_miso    (spi_miso),
-    .mem_clk     (mem_clk),
-    .mem_i_data  (mem_i_data),
-    .mem_i_wr_en (mem_i_wr_en),
-    .mem_i_addr  (mem_i_addr),
-    .mem_o_data  (mem_o_data)
+    .mem_clk     (mem_vif.mem_clk),
+    .mem_i_data  (mem_vif.mem_i_data),
+    .mem_i_wr_en (mem_vif.mem_i_wr_en),
+    .mem_i_addr  (mem_vif.mem_i_addr),
+    .mem_o_data  (mem_vif.mem_o_data)
   );
 
   initial begin
     env_cfg = minisoc_env_cfg::type_id::create("env_cfg");
     env_cfg.clk_cfg_h.vif = clk_vif;
     env_cfg.rst_cfg_h.vif = rst_vif;
+    env_cfg.mem_cfg_h.vif = mem_vif;
 
     uvm_config_db#(minisoc_env_cfg)::set(
       null, "uvm_test_top.env", "cfg", env_cfg

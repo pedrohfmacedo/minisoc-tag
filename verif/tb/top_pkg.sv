@@ -24,6 +24,16 @@ package minisoc_pkg;
   `include "agents/rst/rst_coverage.svh"
   `include "agents/rst/rst_agent.svh"
 
+  // Memory agent
+  `include "agents/mem/mem_item.svh"
+  `include "agents/mem/mem_cfg.svh"
+  `include "agents/mem/mem_sequencer.svh" 
+  `include "agents/mem/mem_driver.svh"
+  `include "agents/mem/mem_monitor.svh"
+  `include "agents/mem/mem_coverage.svh"
+  `include "agents/mem/mem_agent.sv"
+
+
   // Environment
   `include "env/minisoc_env_cfg.svh"
   `include "env/minisoc_env.svh"
@@ -45,6 +55,9 @@ package minisoc_pkg;
   `include "sequences/rst/rst_async_pulse_train_sequence.svh"
   `include "sequences/rst/rst_random_constrained_sequence.svh"
 
+  // Memory sequences
+  `include "sequences/mem/mem_sequence.svh"
+
   // Tests
   `include "tests/minisoc_test_base.svh"
   `include "tests/minisoc_reset_test.svh"
@@ -53,5 +66,6 @@ package minisoc_pkg;
   `include "tests/minisoc_test_reset_clock.svh"
   `include "tests/minisoc_test_random_constrained.svh"
   `include "tests/minisoc_test_clk_2ghz.svh"
+  `include "tests/minisoc_test_mem.svh"
 
 endpackage
