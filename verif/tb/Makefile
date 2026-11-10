@@ -3,7 +3,7 @@
 SIM          ?= vcs
 UVM_VERSION  ?= uvm-1.2
 UVM_SEED     ?= 1
-UVM_TESTNAME ?= minisoc_test_clk_2ghz
+UVM_TESTNAME ?= minisoc_test_mem
 VERDI       ?= verdi
 
 TB_DIR := $(CURDIR)
@@ -30,7 +30,8 @@ DUT_FILES := \
 
 IF_FILES := \
 	$(TB_DIR)/agents/clk/clk_if.sv \
-	$(TB_DIR)/agents/rst/rst_if.sv
+	$(TB_DIR)/agents/rst/rst_if.sv \
+	$(TB_DIR)/agents/mem/mem_if.sv
 
 PKG_FILE := $(TB_DIR)/top_pkg.sv
 TB_TOP   := $(TB_DIR)/top_tb.sv
