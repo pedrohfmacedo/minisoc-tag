@@ -6,7 +6,7 @@ class mem_cfg extends uvm_object;
   uvm_active_passive_enum is_active = UVM_ACTIVE;
 
   // Definiçoes padrao da mem 
-    period_ps = 5000; // 5ns = 200MHz
+  time period_ps = 5ns; // 5ns = 200MHz
 
   // Macro + Fiedls
    `uvm_object_utils_begin(mem_cfg)

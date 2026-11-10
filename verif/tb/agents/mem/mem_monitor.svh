@@ -25,6 +25,30 @@ class mem_monitor extends uvm_monitor;
     // Run
     task run_phase(uvm_phase phase);
         mem_item item;      
+
+        forever begin
+            // Espera por uma borda de clock para capturar a transação
+            @(mem_vif.mon_cb);
+
+            item = mem_item::type_id::create("item");
+            item.period_ps = cfg.period_ps;
+            item.addr = mem_vif.mon_cb.mem_i_addr;
+            item.wr_en = mem_vif.mon_cb.mem_i_wr_en;
+
+            if (item.wr_en) begin
+                // Write
+                item.data = mem_vif.mon_cb.mem_i_data;
+                `uvm_info("MEM_MON",$sformatf( 
+                    "WRITE: addr=%0d data=%08h", item.addr, item.data), UVM_MEDIUM)
+            end
+            else begin
+                item.data = mem_vif.mon_cb.mem_o_data;
+                `uvm_info("MEM_MON",$sformatf( 
+                    "READ: addr=%0d data=%08h", item.addr, item.data), UVM_MEDIUM)
+            end
+
+            ap.write(item);
+        end
     endtask
 
 endclass

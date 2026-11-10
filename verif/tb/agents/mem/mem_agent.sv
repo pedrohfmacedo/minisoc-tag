@@ -26,13 +26,14 @@ class mem_agent extends uvm_agent;
     if (mem_vif == null)
       `uvm_fatal("MEM_VIF", "mem_if was not provided in mem_cfg")
 
+    uvm_config_db#(mem_cfg)::set(this, "mem_mon", "cfg", cfg);
     uvm_config_db#(virtual interface mem_if)::set(this, "mem_mon", "vif", mem_vif); //set
     mem_mon = mem_monitor::type_id::create("mem_mon", this);
     mem_cov = mem_coverage::type_id::create("mem_cov", this);
     // Se configurado na cfg como ativo
     if (cfg.is_active == UVM_ACTIVE) begin
       uvm_config_db#(mem_cfg)::set(this, "mem_drv", "cfg", cfg);
-      uvm_config_db#(virtual interface mem_if.driver)::set(
+      uvm_config_db#(virtual interface mem_if)::set(
         this, "mem_drv", "vif", mem_vif
       );
       mem_drv = mem_driver::type_id::create("mem_drv", this);
