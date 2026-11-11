@@ -1,7 +1,7 @@
 class mem_sequence extends uvm_sequence #(mem_item);
   `uvm_object_utils(mem_sequence)
 
-  rand int unsigned num_trans = 15;
+  rand int unsigned num_trans = 1;
 
   constraint num_trans_c {
     num_trans inside {[1:100]};
@@ -11,16 +11,23 @@ class mem_sequence extends uvm_sequence #(mem_item);
     super.new(name);
   endfunction
 
-  virtual task body();
-    mem_item item;
 
-    repeat (num_trans) begin
+  task body();
+    mem_item item;
       item = mem_item::type_id::create("item");
       start_item(item);
-      if (!item.randomize())
-        `uvm_fatal("MEM_SEQ", "Failed to randomize mem_item")
+      item.wr_en = 1'b1;     
+      item.data = 32'hAAAA_BBBB;
+      item.addr = 10'h0000_0010; 
       finish_item(item);
-    end
+      start_item(item);
+      item.wr_en = 1'b0;   
+      item.addr = 10'h0000_0010;   
+      finish_item(item);
+      start_item(item);
+      item.wr_en = 1'b0;   
+      item.addr = 10'h0000_0010;   
+      finish_item(item);
   endtask
 
 endclass

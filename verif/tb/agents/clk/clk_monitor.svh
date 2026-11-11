@@ -42,10 +42,10 @@ class clk_monitor extends uvm_monitor;
       item.cycles = 1;
       ap.write(item);
 
-      `uvm_info("CLK_MON",
-        $sformatf("Observed period=%0d ps high=%0d ps low=%0d ps",
-                  item.period_ps, item.time_high_ps, item.time_low_ps),
-                  UVM_MEDIUM)
+      // `uvm_info("CLK_MON",
+      //   $sformatf("Observed period=%0d ps high=%0d ps low=%0d ps",
+      //             item.period_ps, item.time_high_ps, item.time_low_ps),
+      //             UVM_MEDIUM)
     end
   endtask
 
