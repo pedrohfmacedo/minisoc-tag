@@ -1,7 +1,7 @@
 class mem_sequence extends uvm_sequence #(mem_item);
   `uvm_object_utils(mem_sequence)
 
-  rand int unsigned num_trans = 1;
+  rand int unsigned num_trans = 15;
 
   constraint num_trans_c {
     num_trans inside {[1:100]};
