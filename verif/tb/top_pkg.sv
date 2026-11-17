@@ -56,6 +56,12 @@ package minisoc_pkg;
   `include "sequences/rst/rst_random_constrained_sequence.svh"
 
   // Memory sequences
+  `include "sequences/mem/mem_sequence_base.svh"
+  `include "sequences/mem/mem_write_sequence.svh"
+  `include "sequences/mem/mem_read_sequence.svh"
+  `include "sequences/mem/mem_random_sequence.svh"
+  `include "sequences/mem/mem_corners_sequence.svh"
+  `include "sequences/mem/mem_mix_sequence.svh"
   `include "sequences/mem/mem_sequence.svh"
 
   // Tests
