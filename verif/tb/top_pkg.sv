@@ -65,13 +65,27 @@ package minisoc_pkg;
   `include "sequences/mem/mem_sequence.svh"
 
   // Tests
-  `include "tests/minisoc_test_base.svh"
-  `include "tests/minisoc_reset_test.svh"
-  `include "tests/minisoc_test_reset.svh"
-  `include "tests/minisoc_test_clock.svh"
-  `include "tests/minisoc_test_reset_clock.svh"
-  `include "tests/minisoc_test_random_constrained.svh"
-  `include "tests/minisoc_test_clk_2ghz.svh"
-  `include "tests/minisoc_test_mem.svh"
+  `include "tests/soc/minisoc_test_base.svh"
+
+  // Clock tests
+  `include "tests/clk/minisoc_test_clock.svh"
+  `include "tests/clk/minisoc_test_clk_2ghz.svh"
+
+  // Reset tests
+  `include "tests/rst/minisoc_reset_test.svh"
+  `include "tests/rst/minisoc_test_reset.svh"
+
+  // Memory tests
+  `include "tests/mem/minisoc_test_mem_base.svh"
+  `include "tests/mem/minisoc_test_mem_write.svh"
+  `include "tests/mem/minisoc_test_mem_read.svh"
+  `include "tests/mem/minisoc_test_mem_random.svh"
+  `include "tests/mem/minisoc_test_mem_corners.svh"
+  `include "tests/mem/minisoc_test_mem_mix.svh"
+  `include "tests/mem/minisoc_test_mem.svh"
+
+  // SoC integration tests
+  `include "tests/soc/minisoc_test_random_constrained.svh"
+  `include "tests/soc/minisoc_test_reset_clock.svh"
 
 endpackage
