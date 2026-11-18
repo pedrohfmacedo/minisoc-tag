@@ -1,87 +1,170 @@
-=============================================================================================== 
-a intenção do drier é pensar ele como spi master
-
-primeiro spi_clk
-    - começar em nivel baixo
-    - always-on? nao -: perguntar a porfessor
-    - Conferir period >= 
-    
-segundo protocolo
-    - DUT - amostra MOSI em posedge
-    - DUT - atualiza MISO em negdge 
-    - O MOSI deve esta estável antes da borda (posed)
-    - O MISO deve amostrar na borda de subida (posedge)
-
-    Escrita (one transaction)
-        - build frame {RWb, ADDR, RSV, DATA}. (Write)
-        - spi_cs_n = 0.
-        - transmitir 40 bits (msb-first) (40 ciclos)
-        -spi_cs_n = 1;
-        - finish
-    Read (two transaction)
-        - Build o frame READ com RWb = 1.
-        - Transmitir frame (40 ciclos)
-        - Desativar spi_cs_n.
-        - Aguardar um intervalo entre frames. (?)
-        - Construir e transmitir o frame NOP (ADDR = 0x3F).
-        - Amostrar MISO durante a janela válida de retorno.
-        - Encerrar a transação.
-
-        O Block Guide não detalha o alinhamento exato dos 32 bits de retorno dentro do segundo frame. Esse ponto deve ser confirmado no RTL antes de fechar a implementação da leitura.
-
-
-        Durante uma leitura, em quais ciclos do segundo frame (NOP) os 32 bits de MISO são transmitidos?	Define exatamente quando o driver deve capturar os dados.
-Alta	Qual é o comportamento esperado de spi_miso durante WRITE, READ REQUEST e quando spi_cs_n = 1?	Determina quando MISO é válido ou deve ser ignorado.
-Alta	Existe um intervalo mínimo entre o READ REQUEST e o frame NOP?	O DUT precisa transferir o endereço recebido para o domínio de clk de 2 GHz.
-Alta	Se spi_cs_n for desativado antes dos 40 bits, o frame é descartado?	Define como testar transações incompletas.
-Alta	O que acontece se rst_n for ativado durante uma transação SPI?	Define o comportamento do driver diante de reset.
-Média	Existem tempos mínimos de setup e hold para MOSI e spi_cs_n?	Permite implementar corretamente a temporização.
-Média	O DUT exige que spi_cs_n retorne a 1 entre os dois frames de leitura?	Define a separação das transações.
-Média	Como o DUT trata frames com RSV = 1?	Permite criar testes negativos.
-Média	O que acontece ao escrever em registradores somente leitura ou endereços reservados?	Define os cenários de acesso inválido.
-
-
-Para seu SPI VIP, eu adotaria inicialmente:
-- spi_driver como mestre ativo.
-- clk e rst_n controlados externamente.
-- Uma única task de transmissão serial de 40 bits.
-- Tasks específicas para READ e WRITE.
-- spi_miso ignorado quando não houver retorno válido.
-- Período de SPI configurável.
-- Tratamento de reset durante uma transferência.
-- Monitor independente do driver, reconstruindo os frames diretamente dos sinais.
-A decisão arquitetural mais importante é esta: uma operação de leitura deve ser representada por um único spi_item de alto nível, mesmo que o driver execute dois frames SPI físicos.
-
-Assim, a sequence solicita simplesmente uma leitura de REG_KEY0, e o driver se responsabiliza pelo READ request e pelo NOP de retorno.
-
-Isso mantém as sequences simples e deixa toda a implementação do protocolo concentrada no driver.
 ===============================================================================================
-Monitor 
+INTENÇÃO
+===============================================================================================
 
-onforme o Block Guide, o SPI opera em Mode 0:
-- spi_sclk fica em 0 quando o barramento está ocioso.
-- MOSI é amostrado na borda de subida.
-- MISO é atualizado pelo DUT na borda de descida.
-- O frame possui 40 bits e é transmitido MSB-first.
+O VIP de SPI será implementado como mestre ativo, operando no modo 0.
 
-Monitor por frame: publica um item para cada frame de 40 bits. Nesse caso, a associação entre READ REQUEST e NOP pode ficar no scoreboard ou em outro componente.
+- spi_sclk inicia em nível baixo e permanece baixo quando ocioso.
+- MOSI é amostrado pelo DUT na borda de subida de SCLK.
+- MISO é atualizado pelo DUT na borda de descida de SCLK.
+- MOSI deve estar estável antes da borda de subida.
+- O frame possui 40 bits, transmitidos MSB-first.
+- O período de SCLK deve ser configurável e seu intervalo mínimo confirmado no DUT.
 
-Monitor por operação: reconstrói a operação completa e publica um único item de leitura, mesmo que ela utilize dois frames.
+Formato do frame:
 
-Para o seu SPI VIP, eu escolheria inicialmente o monitor por operação, mantendo internamente a capacidade de identificar cada frame. Isso combina com a proposta de usar um único spi_item para cada leitura ou escrita.
+    {RWb, ADDR[5:0], RSV, DATA[31:0]}
 
-Durante a segunda transação de leitura (NOP), os 32 bits de MISO ficam alinhados ao campo DATA[31:0] ou começam no primeiro ciclo de SCLK?
+- RWb = 0: escrita.
+- RWb = 1: leitura.
+- RSV deve ser 0.
+- ADDR = 0x3F identifica o frame NOP usado na leitura.
 
-Qual é o comportamento esperado de MISO durante WRITE, READ REQUEST e quando CS_n está desativado? Devemos considerá-lo don't care?
+Operações:
 
-Existe um intervalo mínimo entre o READ REQUEST e o NOP, considerando a sincronização entre spi_sclk e clk (2 GHz)?
+Escrita:
+1. Construir o frame de escrita.
+2. Abaixar spi_cs_n.
+3. Transmitir 40 bits MSB-first.
+4. Finalizar com SCLK baixo.
+5. Elevar spi_cs_n.
 
-É obrigatório desativar CS_n entre os dois frames de leitura?
+Leitura:
+1. Construir e transmitir o frame READ.
+2. Desativar spi_cs_n.
+3. Aguardar o intervalo necessário.
+4. Construir e transmitir o frame NOP.
+5. Capturar MISO na janela válida.
+6. Finalizar a transação.
 
-Caso CS_n seja desativado antes de completar os 40 bits, o frame parcial é descartado?
+Confirmado na prática:
+- Os dados de retorno correspondem aos 32 bits menos significativos do frame NOP.
+- CS_N é desativado entre os dois frames da leitura.
 
-Se rst_n for ativado durante uma transação, qual deve ser o comportamento do SPI?
+===============================================================================================
+ARQUITETURA
+===============================================================================================
 
-Existem requisitos específicos de setup/hold para MOSI e CS_n além do SPI Mode 0?
+Componente                Responsabilidade
+spi_item                  Representar uma operação READ ou WRITE.
+spi_cfg                   Configurar período, temporização e modo ativo/passivo.
+spi_driver                Serializar frames e controlar CS_N, SCLK e MOSI.
+spi_monitor               Capturar sinais físicos e reconstruir frames/operações.
+spi_scoreboard            Verificar escritas e comparar dados de leitura.
+spi_coverage              Cobrir registradores, operações, dados e condições.
 
-Essas informações vão ajudar a definir corretamente a temporização, a captura de MISO e o tratamento de transações incompletas no driver e no monitor UVM.
+Decisão arquitetural:
+- A operação de leitura deve ser representada por um único spi_item de alto nível.
+- A sequência solicita apenas a leitura de um endereço.
+- O driver executa o READ Request e o frame NOP internamente.
+- Isso mantém as sequências simples e concentra o protocolo no driver.
+
+Frame interno:
+
+    tx_frame = {RWb, req.addr, 1'b0, req.write_data}
+
+Transmissão:
+- tx_frame[39] até tx_frame[0].
+- MOSI preparado com SCLK baixo.
+- MISO capturado 1 ns após a borda de subida.
+- CS_N elevado somente após completar os 40 bits.
+- Pode ser necessária uma espera de 80 ns após o frame para sincronização com sys_clk.
+
+Tasks previstas:
+
+    task transfer_frame(input bit [39:0] tx_frame,
+                        output logic [39:0] rx_frame);
+
+    task spi_write(spi_item req);
+    task spi_read(spi_item req);
+
+Exemplo de frame de escrita:
+
+    tx_frame = {
+        1'b0,           // WRITE
+        req.addr,       // 6 bits
+        1'b0,           // RSV
+        req.write_data  // 32 bits
+    };
+
+Sequência física de um frame:
+1. Manter spi_sclk = 0 e spi_cs_n = 1.
+2. Abaixar spi_cs_n e preparar o primeiro bit de MOSI.
+3. Aguardar o intervalo de preparação de CS_N.
+4. Gerar 40 ciclos de SCLK.
+5. Finalizar com SCLK baixo.
+6. Elevar spi_cs_n.
+
+===============================================================================================
+DRIVER
+===============================================================================================
+
+- Implementar o driver como mestre ativo.
+- Controlar externamente clk e rst_n.
+- Usar uma única task para transmitir um frame físico de 40 bits.
+- Usar tasks específicas para WRITE e READ.
+- Permitir que o período do SPI seja configurado.
+- Ignorar spi_miso fora da janela válida de retorno.
+- Tratar reset durante uma transferência.
+- Verificar setup e hold de MOSI e CS_N.
+- Caso CS_N seja desativado antes dos 40 bits, definir se o frame parcial será descartado.
+
+===============================================================================================
+MONITOR
+===============================================================================================
+
+O monitor escolhido será inicialmente por operação, mantendo internamente a identificação dos frames.
+
+Fluxo:
+1. Detectar a descida de spi_cs_n.
+2. Capturar MOSI e MISO nas bordas de subida de SCLK.
+3. Reconstruir os frames MSB-first.
+4. Identificar WRITE, READ Request e NOP.
+5. Associar o READ Request ao NOP seguinte.
+6. Extrair miso_frame[31:0] como resultado da leitura.
+
+Opções alternativas:
+- Monitor por frame: publica um item para cada frame físico. A associação READ/NOP fica no scoreboard ou em outro componente.
+- Monitor por operação: reconstrói a operação completa e publica uma leitura única, mesmo com dois frames.
+
+Observação:
+- O testbench escreve 32'd256 em REG_NUM_BLOCKS e verifica cfg_num_blocks[8:0] = 256.
+- Após reset, cfg_num_blocks[8:0] deve receber 1.
+
+===============================================================================================
+DÚVIDAS
+===============================================================================================
+
+Alta prioridade:
+- Em quais ciclos do frame NOP os 32 bits de MISO são transmitidos?
+- Os bits de MISO começam alinhados ao campo DATA[31:0] ou em outro ciclo?
+- Qual é o comportamento de MISO durante WRITE e READ Request?
+- MISO deve ser considerado don't care fora da janela válida?
+- Qual é o comportamento de MISO quando spi_cs_n = 1?
+- Existe um intervalo mínimo entre READ Request e frame NOP?
+- O DUT exige CS_N elevado entre os dois frames da leitura?
+- Se CS_N cair antes dos 40 bits, o frame parcial é descartado?
+- Qual é o comportamento do SPI se rst_n for ativado durante uma transação?
+
+Prioridade média:
+- Qual é o período mínimo de SCLK?
+- Existem requisitos de setup e hold adicionais ao modo 0 para MOSI e CS_N?
+- Como o DUT trata frames com RSV = 1?
+- Como são tratados escritos em registradores somente leitura?
+- Como são tratados escritos em endereços reservados?
+
+===============================================================================================
+RECOMENDAÇÕES
+===============================================================================================
+
+- SPI driver: mestre ativo.
+- clk e rst_n: controlados externamente.
+- Usar uma única task de transmissão serial de 40 bits.
+- Usar tasks específicas para READ e WRITE.
+- Tornar o período do SPI configurável.
+- Implementar tratamento explícito de reset.
+- Implementar monitor independente do driver.
+- Reconstruir diretamente os frames a partir dos sinais físicos.
+- Manter a interface de sequência simples: uma operação de leitura corresponde a um único spi_item.
+
+Essas definições devem ser confirmadas no RTL antes de fechar temporização, captura de MISO e tratamento de frames incompletos.
