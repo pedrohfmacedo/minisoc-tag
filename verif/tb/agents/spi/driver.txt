@@ -168,3 +168,22 @@ RECOMENDAÇÕES
 - Manter a interface de sequência simples: uma operação de leitura corresponde a um único spi_item.
 
 Essas definições devem ser confirmadas no RTL antes de fechar temporização, captura de MISO e tratamento de frames incompletos.
+
+Teste base - Instanciar o env, configurar os modulos 
+
+Test -> virtual sequencer -> startar as sequencias 
+    Pq -> Overwrite -> menos código.
+
+    Virtual sequencer -> agrupar todos os sequences daquele enviroment (classe é um tipo.)
+    Virtual sequencer -> sequencer VIP
+        spi_sqr "handle"
+
+        virtual sequence roda no virtual sequencer
+        sequence
+        virtual base sequence, "tudo que se repete" crie unma base "
+            todas as sequencias (all sequences VIPs) and types (nao colocaria um body)
+        
+    coleção de programas -> overwrite
+
+    connect sequencer virtual no conect spi env no sequencer
+    run phase base qeunce virtual = start virtual seqeuncer 
