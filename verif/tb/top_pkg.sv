@@ -6,6 +6,9 @@ package minisoc_pkg;
   import uvm_pkg::*;
   `include "uvm_macros.svh"
 
+  // ================================================================
+  // ===================         A G E N T        ===================
+  // ================================================================
   // Clock agent
   `include "agents/clk/clk_cfg.svh"
   `include "agents/clk/clk_item.svh"
@@ -33,10 +36,26 @@ package minisoc_pkg;
   `include "agents/mem/mem_coverage.svh"
   `include "agents/mem/mem_agent.sv"
 
+  // SPI agent
 
+  `include "agents/spi/spi_item.svh"
+  `include "agents/spi/spi_cfg.svh"
+  `include "agents/spi/spi_sequencer.svh"
+  `include "agents/spi/spi_driver.svh"
+  `include "agents/spi/spi_monitor.svh"
+  `include "agents/spi/spi_coverage.svh"
+  `include "agents/spi/spi_agent.svh"
+
+  // ================================================================
+  // ===================         E N V            ===================
+  // ================================================================
   // Environment
   `include "env/minisoc_env_cfg.svh"
   `include "env/minisoc_env.svh"
+
+  // ================================================================
+  // ===================      S E Q U E N C E     ===================
+  // ================================================================
 
   // Clock sequences
   `include "sequences/clk/clk_sequence.svh"
@@ -64,6 +83,21 @@ package minisoc_pkg;
   `include "sequences/mem/mem_mix_sequence.svh"
   `include "sequences/mem/mem_sequence.svh"
 
+  // SPI sequences
+  `include "sequences/spi/spi_sequence_base.svh"
+  `include "sequences/spi/spi_back_to_back_sequence.svh"
+  `include "sequences/spi/spi_control_sequence.svh"
+  `include "sequences/spi/spi_num_blocks_sequence.svh"
+  `include "sequences/spi/spi_random_sequence.svh"
+  `include "sequences/spi/spi_read_sequence.svh"
+  `include "sequences/spi/spi_status_sequence.svh"
+  `include "sequences/spi/spi_write_read_random_sequence.svh"
+  `include "sequences/spi/spi_sequence.svh"
+
+  // ================================================================
+  // ===================          T E S T         ===================
+  // ================================================================
+
   // Tests
   `include "tests/soc/minisoc_test_base.svh"
 
@@ -84,6 +118,14 @@ package minisoc_pkg;
   `include "tests/mem/minisoc_test_mem_mix.svh"
   `include "tests/mem/minisoc_test_mem.svh"
 
+  // SPI tests
+  `include "tests/spi/minisoc_test_spi_control.svh"
+  `include "tests/spi/minisoc_test_spi_random.svh"
+  `include "tests/spi/minisoc_test_spi_read.svh"
+  `include "tests/spi/minisoc_test_spi_write_read.svh"
+  `include "tests/spi/minisoc_test_spi_write.svh"
+  `include "tests/spi/minisoc_test_spi.svh"
+  
   // SoC integration tests
   `include "tests/soc/minisoc_test_random_constrained.svh"
   `include "tests/soc/minisoc_test_reset_clock.svh"
