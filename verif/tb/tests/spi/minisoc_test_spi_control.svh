@@ -18,19 +18,19 @@ class minisoc_test_spi_control extends minisoc_test_base;
     control_seq = spi_control_sequence::type_id::create(
       "control_seq"
     );
-    control_seq.start(env.spi_agt.spi_seq);
+    control_seq.start(env.spi_agt.spi_seqr);
 
     // NUM_BLOCKS sequence
     num_blocks_seq = spi_num_blocks_sequence::type_id::create(
       "num_blocks_seq"
     );
-    num_blocks_seq.start(env.spi_agt.spi_seq);
+    num_blocks_seq.start(env.spi_agt.spi_seqr);
 
     // Status sequence
     status_seq = spi_status_sequence::type_id::create(
       "status_seq"
     );
-    status_seq.start(env.spi_agt.spi_seq);    
+    status_seq.start(env.spi_agt.spi_seqr);
     
     phase.drop_objection(this);
 

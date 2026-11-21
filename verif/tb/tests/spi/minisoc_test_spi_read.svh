@@ -15,7 +15,7 @@ class minisoc_test_spi_read extends minisoc_test_base;
     phase.raise_objection(this);
 
     seq = spi_read_sequence::type_id::create("seq");
-    seq.start(env.spi_agt.spi_seq);
+    seq.start(env.spi_agt.spi_seqr);
 
     phase.drop_objection(this);
 

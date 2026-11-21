@@ -1,30 +1,43 @@
-interface spi_if (input logic clk);
-  timeunit 1ps; timeprecision 1ps;
-  // SPI Mode 0: CPOL = 0 e CPHA = 0.
-  // MOSI amostrado na borda de subida de spi_sclk.
-  // MISO atualizado na borda de descida de spi_sclk.
-  // Ordem de bits MSB-first.
-  logic spi_sclk; // clk spi if
-  logic spi_cs_n; // Sel low active
-  logic spi_mosi; // Data sent to slave // In
-  logic spi_miso; // Data sent to master // Out
+//interface spi_if (input logic clk);
+interface spi_if ();
 
-// Para Mode 0, o monitor pode amostrar MOSI/MISO na subida de spi_sclk
+  timeunit 1ps;
+  timeprecision 1ps;
 
-  // Driver agenda os pinos nos ciclos do clock de referência.
-  clocking drv_cb @(posedge spi_sclk);
-    default input #1step output #0;
-    output spi_sclk, spi_cs_n, spi_mosi;
-    input  spi_miso;
-  endclocking
+  // SPI Mode 0: CPOL = 0, CPHA = 0
+  // MOSI sampled on rising edge
+  // MISO updated on falling edge
+  // MSB first
 
-  // Mode 0: captura os dados na borda de subida.
+  logic spi_sclk;
+  logic spi_cs_n;
+  logic spi_mosi;
+  logic spi_miso;
+
+  // Monitor clocking block
   clocking mon_cb @(posedge spi_sclk);
     default input #1step;
-    input spi_cs_n, spi_mosi, spi_miso;
+
+    input spi_cs_n;
+    input spi_mosi;
+    input spi_miso;
   endclocking
 
-  modport driver  (clocking drv_cb);
-  modport monitor (clocking mon_cb);
-  
-  endinterface
+  // Driver controls SPI pins directly
+  modport driver (
+    output spi_sclk,
+    output spi_cs_n,
+    output spi_mosi,
+    input  spi_miso
+  );
+
+  // Monitor only observes SPI signals
+  modport monitor (
+    clocking mon_cb,
+    input spi_sclk,
+    input spi_cs_n,
+    input spi_mosi,
+    input spi_miso
+  );
+
+endinterface

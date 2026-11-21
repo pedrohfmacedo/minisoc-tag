@@ -10,12 +10,12 @@ class minisoc_test_spi_write extends minisoc_test_base;
 
   task run_phase(uvm_phase phase);
 
-    spi_write_sequence seq;
+    spi_write_sequence seq_write;
 
     phase.raise_objection(this);
 
-    seq = spi_write_sequence::type_id::create("seq");
-    seq.start(env.spi_agt.spi_seq);
+    seq_write = spi_write_sequence::type_id::create("seq_write");
+    seq_write.start(env.spi_agt.spi_seqr);
 
     phase.drop_objection(this);
 

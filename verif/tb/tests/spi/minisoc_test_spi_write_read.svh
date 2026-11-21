@@ -14,7 +14,7 @@ function new(string name = "minisoc_test_spi_write_read",
     phase.raise_objection(this);
 
 seq = spi_write_read_random_sequence::type_id::create("seq");
-    seq.start(env.spi_agt.spi_seq);
+    seq.start(env.spi_agt.spi_seqr);
 
     phase.drop_objection(this);
 

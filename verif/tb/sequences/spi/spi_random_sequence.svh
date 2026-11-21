@@ -1,9 +1,9 @@
 
-class spi_full_random_sequence extends spi_sequence_base;
+class spi_random_sequence extends spi_sequence_base;
 
-  `uvm_object_utils(spi_full_random_sequence)
+  `uvm_object_utils(spi_random_sequence)
 
-  function new(string name = "spi_full_random_sequence");
+  function new(string name = "spi_random_sequence");
     super.new(name);
   endfunction
 

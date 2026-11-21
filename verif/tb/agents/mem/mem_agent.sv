@@ -8,6 +8,7 @@ class mem_agent extends uvm_agent;
   mem_sequencer mem_seqr;
   virtual interface mem_if mem_vif;
   mem_coverage mem_cov;
+  mem_checker mem_chk;
 
   // Constructor
   function new(string name = "mem_agent", uvm_component parent = null);
@@ -28,8 +29,10 @@ class mem_agent extends uvm_agent;
 
     uvm_config_db#(mem_cfg)::set(this, "mem_mon", "cfg", cfg);
     uvm_config_db#(virtual interface mem_if)::set(this, "mem_mon", "vif", mem_vif); //set
+    uvm_config_db#(mem_cfg)::set(this, "mem_chk", "cfg", cfg);
     mem_mon = mem_monitor::type_id::create("mem_mon", this);
     mem_cov = mem_coverage::type_id::create("mem_cov", this);
+    mem_chk = mem_checker::type_id::create("mem_chk",this);
     // Se configurado na cfg como ativo
     if (cfg.is_active == UVM_ACTIVE) begin
       uvm_config_db#(mem_cfg)::set(this, "mem_drv", "cfg", cfg);
@@ -47,6 +50,7 @@ class mem_agent extends uvm_agent;
       mem_drv.seq_item_port.connect(mem_seqr.seq_item_export);
     end
     mem_mon.ap.connect(mem_cov.analysis_export);
+    mem_mon.ap.connect(mem_chk.analysis_export);
   endfunction
 
 endclass

@@ -11,6 +11,7 @@ class spi_item extends uvm_sequence_item;
   typedef enum bit [5:0] {
     REG_KEY0           = 6'h00,
     REG_KEY1           = 6'h01,
+    REG_KEY2           = 6'h02,
     REG_KEY3           = 6'h03,
     REG_IV0            = 6'h04,
     REG_IV1            = 6'h05,
@@ -31,7 +32,11 @@ class spi_item extends uvm_sequence_item;
   rand spi_op       is_read;
   rand spi_addr     addr;
   rand bit [31:0]   write_data;
+  bit [31:0]        read_data;
   rand int unsigned period_ps = 0;
+  logic reserved_bit;
+  logic nop_reserved_bit;
+  logic rw_bit;
 
   // Data constraints
   constraint spi_c {
@@ -53,7 +58,11 @@ class spi_item extends uvm_sequence_item;
     `uvm_field_enum(spi_op, is_read, UVM_ALL_ON)
     `uvm_field_enum(spi_addr, addr, UVM_ALL_ON)
     `uvm_field_int(write_data, UVM_ALL_ON)
+    `uvm_field_int(read_data, UVM_ALL_ON)
     `uvm_field_int(period_ps, UVM_ALL_ON)
+    `uvm_field_int(reserved_bit, UVM_ALL_ON)
+    `uvm_field_int(nop_reserved_bit, UVM_ALL_ON)
+    `uvm_field_int(rw_bit, UVM_ALL_ON)
   `uvm_object_utils_end
 
   // Constructor

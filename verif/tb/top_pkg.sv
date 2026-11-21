@@ -34,6 +34,7 @@ package minisoc_pkg;
   `include "agents/mem/mem_driver.svh"
   `include "agents/mem/mem_monitor.svh"
   `include "agents/mem/mem_coverage.svh"
+  `include "agents/mem/mem_checker.svh"
   `include "agents/mem/mem_agent.sv"
 
   // SPI agent
@@ -44,7 +45,7 @@ package minisoc_pkg;
   `include "agents/spi/spi_driver.svh"
   `include "agents/spi/spi_monitor.svh"
   `include "agents/spi/spi_coverage.svh"
-  `include "agents/spi/spi_agent.svh"
+  `include "agents/spi/spi_agent.sv"
 
   // ================================================================
   // ===================         E N V            ===================
@@ -92,6 +93,7 @@ package minisoc_pkg;
   `include "sequences/spi/spi_read_sequence.svh"
   `include "sequences/spi/spi_status_sequence.svh"
   `include "sequences/spi/spi_write_read_random_sequence.svh"
+  `include "sequences/spi/spi_write_sequence.svh"
   `include "sequences/spi/spi_sequence.svh"
 
   // ================================================================
@@ -120,7 +122,6 @@ package minisoc_pkg;
 
   // SPI tests
   `include "tests/spi/minisoc_test_spi_control.svh"
-  `include "tests/spi/minisoc_test_spi_random.svh"
   `include "tests/spi/minisoc_test_spi_read.svh"
   `include "tests/spi/minisoc_test_spi_write_read.svh"
   `include "tests/spi/minisoc_test_spi_write.svh"

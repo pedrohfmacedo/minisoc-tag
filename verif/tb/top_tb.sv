@@ -11,7 +11,8 @@ module top_tb;
   clk_if clk_vif();
   rst_if rst_vif(.clk(clk_vif.clk));
   mem_if mem_vif();
-  spi_if spi_vif(.clk(clk_vif.clk));
+  spi_if spi_vif();
+  //spi_if spi_vif(.clk(clk_vif.clk));
 
   minisoc_env_cfg env_cfg;
 

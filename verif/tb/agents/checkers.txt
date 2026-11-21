@@ -1,0 +1,5 @@
+A divisão prática é:
+
+Agent: checks locais ao protocolo, que só precisam observar uma interface. Por exemplo, validar transações SPI ou regras do barramento de memória. Podem ficar em um checker ligado ao monitor; as regras temporais em sinais também podem ser SVA na interface.
+Env: checks que comparam componentes ou transações, como conferir se uma escrita SPI resultou nos dados esperados na memória. Esse é o lugar típico para scoreboard e checker integrado, conectados às analysis ports dos monitors.
+Test/sequence: escolhem o cenário e os dados esperados; evite colocar ali a lógica reutilizável de verificação.
