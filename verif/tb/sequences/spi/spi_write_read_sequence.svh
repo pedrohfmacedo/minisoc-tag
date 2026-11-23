@@ -1,7 +1,7 @@
-class spi_sequence extends spi_sequence_base #(spi_item);
-  `uvm_object_utils(spi_sequence)
+class spi_write_read_sequence extends spi_sequence_base #(spi_item);
+  `uvm_object_utils(spi_write_read_sequence)
 
-  function new(string name = "spi_sequence");
+  function new(string name = "spi_write_read_sequence");
     super.new(name);
   endfunction
 
