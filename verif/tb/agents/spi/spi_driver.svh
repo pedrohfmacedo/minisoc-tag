@@ -29,7 +29,7 @@ class spi_driver extends uvm_driver #(spi_item);
   // Run
   task run_phase(uvm_phase phase);
     spi_item req;
-
+    
     current_period = cfg.period_ps;
     vif.spi_sclk  = 1'b0;
     vif.spi_cs_n  = 1'b1;
