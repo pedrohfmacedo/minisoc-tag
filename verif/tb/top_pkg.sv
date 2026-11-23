@@ -94,6 +94,7 @@ package minisoc_pkg;
   `include "sequences/spi/spi_status_sequence.svh"
   `include "sequences/spi/spi_write_read_random_sequence.svh"
   `include "sequences/spi/spi_write_sequence.svh"
+  `include "sequences/spi/spi_write_read_sequence.svh"
   `include "sequences/spi/spi_sequence.svh"
 
   // ================================================================

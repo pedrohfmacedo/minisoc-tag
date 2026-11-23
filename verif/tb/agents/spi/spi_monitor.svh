@@ -132,42 +132,99 @@ class spi_monitor extends uvm_monitor;
 
     int unsigned bit_count;
     bit frame_overflow;
+
     mosi_frame = '0;
     miso_frame = '0;
     complete = 1'b0;
     bit_count = 0;
     frame_overflow = 1'b0;
 
-    // Wait for CS_N assertion
+    // Wait for SPI frame start
     @(negedge vif.spi_cs_n);
 
-    // Capture while CS_N is active
-    while (vif.spi_cs_n === 1'b0) begin
-      // Wait for SPI sampling edge
-      @(vif.mon_cb);
-      if (vif.spi_cs_n === 1'b0) begin
-        // CHECK: SPI_NO_X_CONTROL
-        check_no_x_control();
-        // CHECK: SPI_FRAME_LENGTH (overflow)
-        if (bit_count >= 40) begin
-          if (!frame_overflow)
-            check_frame_overflow(bit_count);
-          frame_overflow = 1'b1;
-        end
-        else begin
-          // Sample SPI Mode 0 signals
-          mosi_frame[39-bit_count] = vif.mon_cb.spi_mosi;
-          miso_frame[39-bit_count] = vif.mon_cb.spi_miso;
-        end
-        bit_count++;
+    forever begin
+
+      // Wait for sampling edge or end of frame
+      @(posedge vif.spi_sclk or posedge vif.spi_cs_n);
+
+      // CS_N high: end of frame
+      if (vif.spi_cs_n !== 1'b0)
+        break;
+
+      // Validate control signals
+      check_no_x_control();
+
+      // Detect frame overflow
+      if (bit_count >= 40) begin
+
+        if (!frame_overflow)
+          check_frame_overflow(bit_count);
+
+        frame_overflow = 1'b1;
+
       end
+      else begin
+
+        // SPI Mode 0: sample on rising edge
+        mosi_frame[39-bit_count] = vif.spi_mosi;
+        miso_frame[39-bit_count] = vif.spi_miso;
+
+      end
+
+      bit_count++;
+
     end
 
-    // CHECK: SPI_FRAME_LENGTH
+    // Validate number of bits received
     if (!frame_overflow)
       complete = check_frame_length(bit_count);
 
   endtask
+
+  // task capture_frame(
+  //   output logic [39:0] mosi_frame,
+  //   output logic [39:0] miso_frame,
+  //   output bit complete
+  // );
+
+  //   int unsigned bit_count;
+  //   bit frame_overflow;
+  //   mosi_frame = '0;
+  //   miso_frame = '0;
+  //   complete = 1'b0;
+  //   bit_count = 0;
+  //   frame_overflow = 1'b0;
+
+  //   // Wait for CS_N assertion
+  //   @(negedge vif.spi_cs_n);
+
+  //   // Capture while CS_N is active
+  //   while (vif.spi_cs_n === 1'b0) begin
+  //     // Wait for SPI sampling edge
+  //     @(vif.mon_cb);
+  //     if (vif.spi_cs_n === 1'b0) begin
+  //       // CHECK: SPI_NO_X_CONTROL
+  //       check_no_x_control();
+  //       // CHECK: SPI_FRAME_LENGTH (overflow)
+  //       if (bit_count >= 40) begin
+  //         if (!frame_overflow)
+  //           check_frame_overflow(bit_count);
+  //         frame_overflow = 1'b1;
+  //       end
+  //       else begin
+  //         // Sample SPI Mode 0 signals
+  //         mosi_frame[39-bit_count] = vif.mon_cb.spi_mosi;
+  //         miso_frame[39-bit_count] = vif.mon_cb.spi_miso;
+  //       end
+  //       bit_count++;
+  //     end
+  //   end
+
+  //   // CHECK: SPI_FRAME_LENGTH
+  //   if (!frame_overflow)
+  //     complete = check_frame_length(bit_count);
+
+  // endtask
 
   // ------------------------------------------------------------
   // SPI PROTOCOL CHECKS

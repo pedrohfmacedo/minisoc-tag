@@ -1,4 +1,3 @@
-
 class spi_driver extends uvm_driver #(spi_item);
   `uvm_component_utils(spi_driver)
 
@@ -22,6 +21,10 @@ class spi_driver extends uvm_driver #(spi_item);
     uvm_config_db#(virtual spi_if)::get(this, "", "vif", vif);
     if (vif == null)
       `uvm_fatal("spi_VIF", "spi_if was not provided to spi_driver")
+
+    // vif.spi_sclk = 1'b0;
+    // vif.spi_cs_n = 1'b1;
+    // vif.spi_mosi = 1'b0;
   endfunction
 
   time current_period;
@@ -35,6 +38,9 @@ class spi_driver extends uvm_driver #(spi_item);
     vif.spi_cs_n  = 1'b1;
     vif.spi_mosi  = 1'b0;
 
+    // Hold the SPI idle state for two complete SCLK periods.
+    repeat (2) #(current_period);
+
     forever begin
       seq_item_port.get_next_item(req);
 
@@ -47,8 +53,10 @@ class spi_driver extends uvm_driver #(spi_item);
         current_period = cfg.period_ps;
 
       if (req.is_read == spi_item::SPI_READ) begin // escopo para acessar enum do item
+        `uvm_info("SPI_DRV", "Executing SPI READ", UVM_LOW)
         spi_read(req);
       end else begin
+        `uvm_info("SPI_DRV", "Executing SPI WRITE", UVM_LOW)
         spi_write(req);
       end
       
@@ -96,6 +104,12 @@ class spi_driver extends uvm_driver #(spi_item);
 
     req.read_data = rx_frame[31:0];
 
+      // DEBUG: Check MISO received data
+  `uvm_info("SPI_DRV",
+    $sformatf("READ addr=0x%02h, MISO=0x%08h",
+              req.addr, req.read_data),
+    UVM_LOW)
+
   endtask
 
 task transfer_frame(
@@ -114,7 +128,12 @@ task transfer_frame(
         vif.spi_mosi = tx_frame[i];
         #(current_period / 2);
         vif.spi_sclk = 1'b1;
-        #(current_period -(current_period-1));
+        #1;
+        //#(current_period -(current_period-1));
+        `uvm_info("SPI_MISO_DEBUG",
+            $sformatf("bit=%0d, CS_N=%b, MOSI=%b, MISO=%b",
+              i, vif.spi_cs_n, vif.spi_mosi, vif.spi_miso),
+                UVM_HIGH)
         rx_frame[i] = vif.spi_miso;
         #((current_period / 2)-1);
         vif.spi_sclk = 1'b0;
@@ -127,7 +146,7 @@ task transfer_frame(
     vif.spi_sclk = 1'b0;
 
     // Mantém CS_N desativado antes do próximo frame
-    #(current_period * 2);
+     #(current_period * 2);
 
 endtask
 endclass

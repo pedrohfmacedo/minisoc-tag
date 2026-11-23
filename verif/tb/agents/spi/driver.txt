@@ -1,0 +1,104 @@
+=============================================================================================== 
+a intenção do drier é pensar ele como spi master
+
+primeiro spi_clk
+    - começar em nivel baixo
+    - always-on? nao -: perguntar a porfessor
+    - Conferir period >= 
+    
+segundo protocolo
+    - DUT - amostra MOSI em posedge
+    - DUT - atualiza MISO em negdge 
+    - O MOSI deve esta estável antes da borda (posed)
+    - O MISO deve amostrar na borda de subida (posedge)
+
+    Escrita (one transaction)
+        - build frame {RWb, ADDR, RSV, DATA}. (Write)
+        - spi_cs_n = 0.
+        - transmitir 40 bits (msb-first) (40 ciclos)
+        -spi_cs_n = 1;
+        - finish
+    Read (two transaction)
+        - Build o frame READ com RWb = 1.
+        - Transmitir frame (40 ciclos)
+        - Desativar spi_cs_n.
+        - Aguardar um intervalo entre frames. (?)
+        - Construir e transmitir o frame NOP (ADDR = 0x3F).
+        - Amostrar MISO durante a janela válida de retorno.
+        - Encerrar a transação.
+
+        O Block Guide não detalha o alinhamento exato dos 32 bits de retorno dentro do segundo frame. Esse ponto deve ser confirmado no RTL antes de fechar a implementação da leitura.
+
+
+        Durante uma leitura, em quais ciclos do segundo frame (NOP) os 32 bits de MISO são transmitidos?	Define exatamente quando o driver deve capturar os dados.
+Alta	Qual é o comportamento esperado de spi_miso durante WRITE, READ REQUEST e quando spi_cs_n = 1?	Determina quando MISO é válido ou deve ser ignorado.
+Alta	Existe um intervalo mínimo entre o READ REQUEST e o frame NOP?	O DUT precisa transferir o endereço recebido para o domínio de clk de 2 GHz.
+Alta	Se spi_cs_n for desativado antes dos 40 bits, o frame é descartado?	Define como testar transações incompletas.
+Alta	O que acontece se rst_n for ativado durante uma transação SPI?	Define o comportamento do driver diante de reset.
+Média	Existem tempos mínimos de setup e hold para MOSI e spi_cs_n?	Permite implementar corretamente a temporização.
+Média	O DUT exige que spi_cs_n retorne a 1 entre os dois frames de leitura?	Define a separação das transações.
+Média	Como o DUT trata frames com RSV = 1?	Permite criar testes negativos.
+Média	O que acontece ao escrever em registradores somente leitura ou endereços reservados?	Define os cenários de acesso inválido.
+
+Tentando elaborar os Waveforms também surgiram essas dúvidas:
+- Durante uma leitura, em quais ciclos do segundo frame (NOP) os 32 bits de MISO são transmitidos?
+- Existe um intervalo mínimo entre o READ REQUEST e o frame NOP?
+- Se spi_cs_n for desativado antes dos 40 bits, o frame é descartado? (Pode haver transação incompleta?)
+- O DUT exige que spi_cs_n retorne a 1 entre os dois frames de leitura?	( Há um Definição para separação das transações)
+
+Como também arquiteturalmente, queria saber o que senhor acha mais simples e o mais "elegante" para o monitor e driver.
+Monitor por frame -> 1 item para cada frame de 40bits 
+Monitor por operação -> operacao completa em um unico item de leitura (2 transacoes = 1 item (read+nop))
+
+Tentando montar o monitor surgiram essas dúvidas:
+- O frame é considerado completo ao receber o 40º bit ou apenas quando CS_n retorna para 1?
+- No segundo frame de leitura (NOP), os 32 bits de MISO são válidos exatamente durante o cmpo DATA[31:0]?
+- Como o DUT associa o NOP ao READ REQUEST anterior?
+- Se ocorrer um novo READ REQUEST antes do NOP, a leitura anterior é sobrescrita, mantida ou descartada?
+
+Obrigado pela paciência kkkk
+
+Para seu SPI VIP, eu adotaria inicialmente:
+- spi_driver como mestre ativo.
+- clk e rst_n controlados externamente.
+- Uma única task de transmissão serial de 40 bits.
+- Tasks específicas para READ e WRITE.
+- spi_miso ignorado quando não houver retorno válido.
+- Período de SPI configurável.
+- Tratamento de reset durante uma transferência.
+- Monitor independente do driver, reconstruindo os frames diretamente dos sinais.
+A decisão arquitetural mais importante é esta: uma operação de leitura deve ser representada por um único spi_item de alto nível, mesmo que o driver execute dois frames SPI físicos.
+
+Assim, a sequence solicita simplesmente uma leitura de REG_KEY0, e o driver se responsabiliza pelo READ request e pelo NOP de retorno.
+
+Isso mantém as sequences simples e deixa toda a implementação do protocolo concentrada no driver.
+===============================================================================================
+Monitor 
+
+onforme o Block Guide, o SPI opera em Mode 0:
+- spi_sclk fica em 0 quando o barramento está ocioso.
+- MOSI é amostrado na borda de subida.
+- MISO é atualizado pelo DUT na borda de descida.
+- O frame possui 40 bits e é transmitido MSB-first.
+
+Monitor por frame: publica um item para cada frame de 40 bits. Nesse caso, a associação entre READ REQUEST e NOP pode ficar no scoreboard ou em outro componente.
+
+Monitor por operação: reconstrói a operação completa e publica um único item de leitura, mesmo que ela utilize dois frames.
+
+Para o seu SPI VIP, eu escolheria inicialmente o monitor por operação, mantendo internamente a capacidade de identificar cada frame. Isso combina com a proposta de usar um único spi_item para cada leitura ou escrita.
+
+Durante a segunda transação de leitura (NOP), os 32 bits de MISO ficam alinhados ao campo DATA[31:0] ou começam no primeiro ciclo de SCLK?
+
+Qual é o comportamento esperado de MISO durante WRITE, READ REQUEST e quando CS_n está desativado? Devemos considerá-lo don't care?
+
+Existe um intervalo mínimo entre o READ REQUEST e o NOP, considerando a sincronização entre spi_sclk e clk (2 GHz)?
+
+É obrigatório desativar CS_n entre os dois frames de leitura?
+
+Caso CS_n seja desativado antes de completar os 40 bits, o frame parcial é descartado?
+
+Se rst_n for ativado durante uma transação, qual deve ser o comportamento do SPI?
+
+Existem requisitos específicos de setup/hold para MOSI e CS_n além do SPI Mode 0?
+
+Essas informações vão ajudar a definir corretamente a temporização, a captura de MISO e o tratamento de transações incompletas no driver e no monitor UVM.

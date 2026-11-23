@@ -3,10 +3,32 @@
 SIM          ?= vcs
 UVM_VERSION  ?= uvm-1.2
 UVM_SEED     ?= 1
-UVM_TESTNAME ?= minisoc_test_spi
-VERDI       ?= verdi
-
+UVM_TESTNAME ?= minisoc_test_spi_write_read
+VERDI        ?= verdi
 TB_DIR := $(CURDIR)
+VERDI_CMD_DIR := $(TB_DIR)/../cmd
+VERDI_CMD     ?= $(VERDI_CMD_DIR)/verdi.cmd
+VERDI_SPI_CMD := $(VERDI_CMD_DIR)/verdi_spi.cmd
+VERDI_MEM_CMD := $(VERDI_CMD_DIR)/verdi_mem.cmd
+VERDI_CLK_CMD := $(VERDI_CMD_DIR)/verdi_clk.cmd
+VERDI_RST_CMD := $(VERDI_CMD_DIR)/verdi_rst.cmd
+FSDB_FILE    ?= $(shell find $(TB_DIR) $(OUT_DIR) -maxdepth 1 -type f -name '*.fsdb' -printf '%T@ %p\n' 2>/dev/null | sort -nr | head -n1 | cut -d' ' -f2-)
+
+VERDI_WAVE_CMD := $(VERDI_CMD)
+ifneq (,$(findstring minisoc_test_spi,$(UVM_TESTNAME)))
+VERDI_WAVE_CMD := $(VERDI_SPI_CMD)
+else ifneq (,$(findstring minisoc_test_mem,$(UVM_TESTNAME)))
+VERDI_WAVE_CMD := $(VERDI_MEM_CMD)
+else ifneq (,$(findstring minisoc_test_clk,$(UVM_TESTNAME)))
+VERDI_WAVE_CMD := $(VERDI_CLK_CMD)
+else ifneq (,$(findstring minisoc_test_clock,$(UVM_TESTNAME)))
+VERDI_WAVE_CMD := $(VERDI_CLK_CMD)
+else ifneq (,$(findstring minisoc_reset_test,$(UVM_TESTNAME)))
+VERDI_WAVE_CMD := $(VERDI_RST_CMD)
+else ifneq (,$(findstring reset,$(UVM_TESTNAME)))
+VERDI_WAVE_CMD := $(VERDI_RST_CMD)
+endif
+
 WORKSPACE ?= $(TB_DIR)/workspace
 RTL_DIR := $(TB_DIR)/../../frontend/rtl
 OUT_DIR := $(WORKSPACE)/build/vcs
@@ -77,7 +99,7 @@ RUN_FLAGS_CDS := \
 
 COV_FLAGS_CDS := $(COV_FLAGS)
 
-.PHONY: all compile run coverage gui clean help coverage_verdi compile_cds run_cds gui_cds
+.PHONY: all compile run coverage gui clean help coverage_verdi compile_cds run_cds gui_cds verdi_wf verdi_wf_easy
 
 all: clean compile run
 
@@ -104,8 +126,15 @@ run_cds:
 gui: compile
 	cd $(OUT_DIR) && $(SIMV) -gui $(RUN_FLAGS) -l $(LOG_DIR)/sim_gui.log
 
-verdi_wf: 
-	verdi -play ../cmd/verdi.cmd
+verdi_wf:
+	$(VERDI) -nologo -play "$(VERDI_WAVE_CMD)" -ssf "$(FSDB_FILE)"
+
+verdi_wf_easy:
+	@test -n "$(FSDB_FILE)" && test -f "$(FSDB_FILE)" || { echo "[VERDI] No FSDB file found. Run 'make gui UVM_TESTNAME=<test>' and then 'make verdi_wf_easy'."; exit 1; }
+	@echo "[VERDI] Opening FSDB: $(FSDB_FILE)"
+	@echo "[VERDI] Loading layout: $(VERDI_WAVE_CMD)"
+	$(VERDI) -nologo -play "$(VERDI_WAVE_CMD)" -ssf "$(FSDB_FILE)"
+
 gui_cds: compile_cds
 	cd $(OUT_DIR_CDS) && $(SIMV_CDS) -gui $(RUN_FLAGS_CDS) -l $(LOG_DIR_CDS)/sim_gui.log
 
@@ -136,4 +165,5 @@ help:
 	@echo "make all UVM_TESTNAME=<test> Compile and run"
 	@echo "make gui UVM_TESTNAME=<test> Compile and open the GUI"
 	@echo "make gui_cds UVM_TESTNAME=<test> Compile and open the Cadence GUI"
-	@echo "make clean                   Remove generated simulation files"
+	@echo "make verdi_wf_easy            Open the latest VCS FSDB waveform"
+	@echo "make verdi_wf_easy FSDB_FILE=/path/to/file.fsdb  Open an explicit waveform file"

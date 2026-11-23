@@ -1,3 +1,4 @@
+
 class spi_write_sequence extends spi_sequence_base;
 
   `uvm_object_utils(spi_write_sequence)
@@ -7,84 +8,29 @@ class spi_write_sequence extends spi_sequence_base;
   endfunction
 
   task body();
+    `uvm_info("SPI_SEQ", "Starting SPI WRITE sequence", UVM_LOW)
+    // AES KEY - 128 bits
+    send_write(spi_item::REG_KEY0, 32'h00112233);
+    send_write(spi_item::REG_KEY1, 32'h44556677);
+    send_write(spi_item::REG_KEY2, 32'h8899AABB);
+    send_write(spi_item::REG_KEY3, 32'hCCDDEEFF);
 
-    // write KEY0
-    send_write(
-      spi_item::REG_KEY0,
-      40000
-    );
+    // AES IV - 128 bits
+    send_write(spi_item::REG_IV0, 32'h01020304);
+    send_write(spi_item::REG_IV1, 32'h05060708);
+    send_write(spi_item::REG_IV2, 32'h090A0B0C);
+    send_write(spi_item::REG_IV3, 32'h0D0E0F10);
 
-    // write KEY1
-    send_write(
-      spi_item::REG_KEY1,
-      40000
-    );
+    // COUNTER - 64 bits
+    send_write(spi_item::REG_COUNTER_HI, 32'h00000000);
+    send_write(spi_item::REG_COUNTER_LO, 32'h00000001);
 
-    // write KEY2
-    send_write(
-      spi_item::REG_KEY2,
-      40000
-    );
+    // Number of blocks
+    send_write(spi_item::REG_NUM_BLOCKS, 32'h00000001);
 
-    // write KEY3
-    send_write(
-      spi_item::REG_KEY3,
-      40000
-    );
-
-    // write IV0
-    send_write(
-      spi_item::REG_IV0,
-      40000
-    );
-
-    // write IV1
-    send_write(
-      spi_item::REG_IV1,
-      40000
-    );
-
-    // write IV2
-    send_write(
-      spi_item::REG_IV2,
-      40000
-    );
-
-    // write IV3
-    send_write(
-      spi_item::REG_IV3,
-      40000
-    );
-
-    // write COUNTER_HI
-    send_write(
-      spi_item::REG_COUNTER_HI,
-      40000
-    );
-
-    // write COUNTER_LO
-    send_write(
-      spi_item::REG_COUNTER_LO,
-      40000
-    );
-
-    // write NUM_BLOCKS
-    send_write(
-      spi_item::REG_NUM_BLOCKS,
-      40000
-    );
-
-    // write AES_CONTROL
-    send_write(
-      spi_item::REG_AES_CONTROL,
-      40000
-    );
-
-    // write SYSTEM_CONTROL
-    send_write(
-      spi_item::REG_SYSTEM_CONTROL,
-      40000
-    );
+    // Control registers
+    send_write(spi_item::REG_AES_CONTROL, 32'h00000000);
+    send_write(spi_item::REG_SYSTEM_CONTROL, 32'h00000000);
 
   endtask
 

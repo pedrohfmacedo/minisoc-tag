@@ -12,7 +12,7 @@ class spi_sequence_base extends uvm_sequence #(spi_item);
   task send_write(
     input bit [5:0] addr,
     input bit [31:0] write_data,
-    input int unsigned period_ps = 40000
+    input int unsigned period_ps = 0
   );
 
     spi_item req;
@@ -33,7 +33,7 @@ class spi_sequence_base extends uvm_sequence #(spi_item);
   // SPI READ
   task send_read(
     input bit [5:0] addr,
-    input int unsigned period_ps = 40000
+    input int unsigned period_ps = 0
   );
 
     spi_item req;
