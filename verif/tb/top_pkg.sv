@@ -65,6 +65,7 @@ package minisoc_pkg;
   `include "sequences/clk/clk_period_limits_sequence.svh"
   `include "sequences/clk/clk_bounded_random_sequence.svh"
   `include "sequences/clk/clk_random_constrained_sequence.svh"
+  `include "sequences/clk/clk_standard_sequence.svh"
 
   // Reset sequences
   `include "sequences/rst/rst_sequence.svh"
@@ -104,13 +105,13 @@ package minisoc_pkg;
   `include "tests/soc/minisoc_test_base.svh"
 
   // Clock tests
-  `include "tests/clk/minisoc_test_clock.svh"
+  `include "tests/clk/minisoc_test_clk.svh"
   `include "tests/clk/minisoc_test_clk_2ghz.svh"
 
   // Reset tests
   `include "tests/rst/minisoc_reset_test.svh"
   `include "tests/rst/minisoc_test_reset.svh"
-
+  `include "tests/rst/minisoc_test_reset_all.svh"
   // Memory tests
   `include "tests/mem/minisoc_test_mem_base.svh"
   `include "tests/mem/minisoc_test_mem_write.svh"

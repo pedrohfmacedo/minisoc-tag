@@ -3,7 +3,7 @@
 SIM          ?= vcs
 UVM_VERSION  ?= uvm-1.2
 UVM_SEED     ?= 1
-UVM_TESTNAME ?= minisoc_test_spi
+UVM_TESTNAME ?= minisoc_test_spi_random
 VERDI       ?= verdi
 
 TB_DIR := $(CURDIR)
@@ -122,6 +122,7 @@ coverage_verdi:
 	@echo "[VERDI] Opening coverage database: $(COV_DIR)"
 	cd $(OUT_DIR) && $(VERDI) -cov -covdir $(COV_DIR)
 
+cover: coverage coverage_verdi
 clean:
 	rm -rf $(WORKSPACE)
 
