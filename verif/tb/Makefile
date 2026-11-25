@@ -3,7 +3,7 @@
 SIM          ?= vcs
 UVM_VERSION  ?= uvm-1.2
 UVM_SEED     ?= 1
-UVM_TESTNAME ?= minisoc_test_spi_write_read
+UVM_TESTNAME ?= minisoc_test_spi_all
 VERDI        ?= verdi
 TB_DIR := $(CURDIR)
 VERDI_CMD_DIR := $(TB_DIR)/../cmd
@@ -101,7 +101,7 @@ COV_FLAGS_CDS := $(COV_FLAGS)
 
 .PHONY: all compile run coverage gui clean help coverage_verdi compile_cds run_cds gui_cds verdi_wf verdi_wf_easy
 
-all: clean compile run
+all: clean compile run gui
 
 compile:
 	@mkdir -p $(LOG_DIR)
@@ -150,6 +150,8 @@ coverage_verdi:
 	@test -d "$(COV_DIR)" || { echo "[VERDI] Coverage DB not found at $(COV_DIR). Run 'make coverage UVM_TESTNAME=<test>' first."; exit 1; }
 	@echo "[VERDI] Opening coverage database: $(COV_DIR)"
 	cd $(OUT_DIR) && $(VERDI) -cov -covdir $(COV_DIR)
+
+cover: coverage coverage_verdi
 
 clean:
 	rm -rf $(WORKSPACE)

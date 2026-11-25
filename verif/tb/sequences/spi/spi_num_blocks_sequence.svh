@@ -1,4 +1,3 @@
-
 class spi_num_blocks_sequence extends spi_sequence_base;
 
   `uvm_object_utils(spi_num_blocks_sequence)
@@ -9,65 +8,27 @@ class spi_num_blocks_sequence extends spi_sequence_base;
 
   task body();
 
-    // Minimum valid value
-    send_write(
-      spi_item::REG_NUM_BLOCKS,
-      32'd1,
-      40000
-    );
+    `uvm_info("SPI_SEQ", "Starting SPI NUM_BLOCKS sequence", UVM_LOW)
 
-    send_read(
-      spi_item::REG_NUM_BLOCKS,
-      40000
-    );
+    // Minimum valid value
+    send_write(spi_item::REG_NUM_BLOCKS, 32'd1);
+    send_read(spi_item::REG_NUM_BLOCKS);
 
     // Two blocks
-    send_write(
-      spi_item::REG_NUM_BLOCKS,
-      32'd2,
-      40000
-    );
-
-    send_read(
-      spi_item::REG_NUM_BLOCKS,
-      40000
-    );
+    send_write(spi_item::REG_NUM_BLOCKS, 32'd2);
+    send_read(spi_item::REG_NUM_BLOCKS);
 
     // Intermediate value
-    send_write(
-      spi_item::REG_NUM_BLOCKS,
-      32'd128,
-      40000
-    );
-
-    send_read(
-      spi_item::REG_NUM_BLOCKS,
-      40000
-    );
+    send_write(spi_item::REG_NUM_BLOCKS, 32'd128);
+    send_read(spi_item::REG_NUM_BLOCKS);
 
     // Maximum - 1
-    send_write(
-      spi_item::REG_NUM_BLOCKS,
-      32'd255,
-      40000
-    );
-
-    send_read(
-      spi_item::REG_NUM_BLOCKS,
-      40000
-    );
+    send_write(spi_item::REG_NUM_BLOCKS, 32'd255);
+    send_read(spi_item::REG_NUM_BLOCKS);
 
     // Maximum valid value
-    send_write(
-      spi_item::REG_NUM_BLOCKS,
-      32'd256,
-      40000
-    );
-
-    send_read(
-      spi_item::REG_NUM_BLOCKS,
-      40000
-    );
+    send_write(spi_item::REG_NUM_BLOCKS, 32'd256);
+    send_read(spi_item::REG_NUM_BLOCKS);
 
   endtask
 

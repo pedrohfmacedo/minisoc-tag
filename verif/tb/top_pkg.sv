@@ -97,6 +97,7 @@ package minisoc_pkg;
   `include "sequences/spi/spi_write_read_sequence.svh"
   `include "sequences/spi/spi_sequence.svh"
 
+
   // ================================================================
   // ===================          T E S T         ===================
   // ================================================================
@@ -127,6 +128,7 @@ package minisoc_pkg;
   `include "tests/spi/minisoc_test_spi_write_read.svh"
   `include "tests/spi/minisoc_test_spi_write.svh"
   `include "tests/spi/minisoc_test_spi.svh"
+  `include "tests/spi/minisoc_test_spi_all.svh"
   
   // SoC integration tests
   `include "tests/soc/minisoc_test_random_constrained.svh"
