@@ -30,15 +30,14 @@ class mem_agent extends uvm_agent;
     uvm_config_db#(mem_cfg)::set(this, "mem_mon", "cfg", cfg);
     uvm_config_db#(virtual interface mem_if)::set(this, "mem_mon", "vif", mem_vif); //set
     uvm_config_db#(mem_cfg)::set(this, "mem_chk", "cfg", cfg);
+    uvm_config_db#(virtual interface mem_if)::set( this, "mem_chk", "vif", mem_vif);
     mem_mon = mem_monitor::type_id::create("mem_mon", this);
     mem_cov = mem_coverage::type_id::create("mem_cov", this);
     mem_chk = mem_checker::type_id::create("mem_chk",this);
     // Se configurado na cfg como ativo
     if (cfg.is_active == UVM_ACTIVE) begin
       uvm_config_db#(mem_cfg)::set(this, "mem_drv", "cfg", cfg);
-      uvm_config_db#(virtual interface mem_if)::set(
-        this, "mem_drv", "vif", mem_vif
-      );
+      uvm_config_db#(virtual interface mem_if)::set( this, "mem_drv", "vif", mem_vif);
       mem_drv = mem_driver::type_id::create("mem_drv", this);
       mem_seqr = mem_sequencer::type_id::create("mem_seqr", this);
     end
