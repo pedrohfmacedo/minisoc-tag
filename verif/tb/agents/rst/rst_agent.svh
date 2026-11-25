@@ -1,10 +1,17 @@
 class rst_agent extends uvm_agent;
     `uvm_component_utils(rst_agent)
+
+    typedef rst_sequencer #(
+        .RST_PARAMS(rst_params_pkg::RST_PARAMS),
+        .seq_item_t(rst_item)
+    ) rst_sequencer_t;
+
     // has-a
     rst_cfg cfg;
     rst_driver rst_drv;
     rst_monitor rst_mon;
-    rst_sequencer rst_seq;
+    // rst_sequencer rst_seq;
+    rst_sequencer_t rst_seq;
     rst_coverage rst_cov;
     virtual interface rst_if rst_vif;
 

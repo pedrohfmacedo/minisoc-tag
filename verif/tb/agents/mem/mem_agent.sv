@@ -1,11 +1,16 @@
 class mem_agent extends uvm_agent;
   `uvm_component_utils(mem_agent)
+  typedef mem_sequencer #(
+    .MEM_PARAMS(mem_params_pkg::MEM_PARAMS),
+    .seq_item_t(mem_item) 
+  ) mem_sequencer_t;
 
   // has-a
   mem_cfg cfg;
   mem_driver mem_drv;
   mem_monitor mem_mon;
-  mem_sequencer mem_seqr;
+  //mem_sequencer mem_seqr;
+  mem_sequencer_t mem_seqr; 
   virtual interface mem_if mem_vif;
   mem_coverage mem_cov;
   mem_checker mem_chk;
@@ -39,7 +44,8 @@ class mem_agent extends uvm_agent;
       uvm_config_db#(mem_cfg)::set(this, "mem_drv", "cfg", cfg);
       uvm_config_db#(virtual interface mem_if)::set( this, "mem_drv", "vif", mem_vif);
       mem_drv = mem_driver::type_id::create("mem_drv", this);
-      mem_seqr = mem_sequencer::type_id::create("mem_seqr", this);
+      //mem_seqr = mem_sequencer::type_id::create("mem_seqr", this);
+      mem_seqr = mem_sequencer_t::type_id::create("mem_seqr", this);
     end
   endfunction
 

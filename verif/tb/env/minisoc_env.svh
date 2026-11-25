@@ -7,6 +7,8 @@ class minisoc_env extends uvm_env;
   rst_agent       rst_agt;
   mem_agent       mem_agt;
   spi_agent       spi_agt;
+  // add virtual
+  minisoc_virtual_sequencer_t vseqr;
 
   function new(string name = "minisoc_env",
                uvm_component parent = null);
@@ -28,11 +30,20 @@ class minisoc_env extends uvm_env;
     rst_agt = rst_agent::type_id::create("rst_agt", this);
     mem_agt = mem_agent::type_id::create("mem_agt", this);
     spi_agt = spi_agent::type_id::create("spi_agt", this);
+    vseqr = minisoc_virtual_sequencer_t::type_id::create("vseqr", this); // ad vsqr
   endfunction
 
   // function void connect_phase(uvm_phase phase);
   //   super.connect_phase(phase);
   //   clk_agt.clk_mon.ap.connect(clk_cov.analysis_export);
   // endfunction
+
+  function void connect_phase(uvm_phase phase);
+    super.connect_phase(phase);
+    vseqr.clk_sqr = clk_agt.clk_seqr;
+    vseqr.rst_sqr = rst_agt.rst_seq;
+    vseqr.mem_sqr = mem_agt.mem_seqr;
+    vseqr.spi_sqr = spi_agt.spi_seqr;
+  endfunction
 
 endclass

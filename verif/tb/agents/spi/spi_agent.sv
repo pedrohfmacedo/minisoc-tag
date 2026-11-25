@@ -1,11 +1,16 @@
 class spi_agent extends uvm_agent;
   `uvm_component_utils(spi_agent)
 
+  typedef spi_sequencer #(
+    .SPI_PARAMS(spi_params_pkg::SPI_PARAMS),
+    .seq_item_t(spi_item)
+  )spi_sequencer_t;
+
   // has-a
   spi_cfg cfg;
   spi_driver spi_drv;
   spi_monitor spi_mon;
-  spi_sequencer spi_seqr;
+  spi_sequencer_t spi_seqr;
   virtual interface spi_if spi_vif;
   spi_coverage spi_cov;
 
@@ -37,7 +42,8 @@ class spi_agent extends uvm_agent;
         this, "spi_drv", "vif", spi_vif
       );
       spi_drv = spi_driver::type_id::create("spi_drv", this);
-      spi_seqr = spi_sequencer::type_id::create("spi_seqr", this);
+      // spi_seqr = spi_sequencer::type_id::create("spi_seqr", this);
+      spi_seqr = spi_sequencer_t::type_id::create("spi_seqr", this);
     end
   endfunction
 

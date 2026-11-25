@@ -1,11 +1,17 @@
 class clk_agent extends uvm_agent;
   `uvm_component_utils(clk_agent)
 
+  typedef clk_sequencer #(
+    .CLK_PARAMS(clk_params_pkg::CLK_PARAMS),
+    .seq_item_t(clk_item)
+  ) clk_sequencer_t;
+
   // has-a
   clk_cfg cfg;
   clk_driver clk_drv;
   clk_monitor clk_mon;
-  clk_sequencer clk_seqr;
+  // clk_sequencer clk_seqr;
+  clk_sequencer_t clk_seqr;
   virtual interface clk_if clk_vif;
   clk_coverage clk_cov;
 
@@ -36,7 +42,8 @@ class clk_agent extends uvm_agent;
         this, "clk_drv", "vif", clk_vif
       );
       clk_drv = clk_driver::type_id::create("clk_drv", this);
-      clk_seqr = clk_sequencer::type_id::create("clk_seqr", this);
+      //clk_seqr = clk_sequencer::type_id::create("clk_seqr", this);
+      clk_seqr = clk_sequencer_t::type_id::create("clk_seqr", this);
     end
   endfunction
 

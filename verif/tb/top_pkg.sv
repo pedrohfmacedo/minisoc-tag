@@ -1,3 +1,8 @@
+`include "agents/clk/clk_params_pkg.sv"
+`include "agents/rst/rst_params_pkg.sv"
+`include "agents/mem/mem_params_pkg.sv"
+`include "agents/spi/spi_params_pkg.sv"
+
 package minisoc_pkg;
 
   timeunit 1ps;
@@ -52,7 +57,27 @@ package minisoc_pkg;
   // ================================================================
   // Environment
   `include "env/minisoc_env_cfg.svh"
+  `include "env/minisoc_virtual_sequencer.svh"
+  typedef minisoc_virtual_sequencer #(
+
+    .virtual_item_t(uvm_sequence_item),
+
+    .SPI_PARAMS(spi_params_pkg::SPI_PARAMS),
+    .spi_item_t(spi_item),
+
+    .MEM_PARAMS(mem_params_pkg::MEM_PARAMS),
+    .mem_item_t(mem_item),
+
+    .CLK_PARAMS(clk_params_pkg::CLK_PARAMS),
+    .clk_item_t(clk_item),
+
+    .RST_PARAMS(rst_params_pkg::RST_PARAMS),
+    .rst_item_t(rst_item)
+
+) minisoc_virtual_sequencer_t;
+
   `include "env/minisoc_env.svh"
+  
 
   // ================================================================
   // ===================      S E Q U E N C E     ===================
@@ -97,7 +122,10 @@ package minisoc_pkg;
   `include "sequences/spi/spi_write_read_sequence.svh"
   `include "sequences/spi/spi_sequence.svh"
 
+  // MINISOC sequences
   `include "sequences/soc/minisoc_ditl_sequence.svh"
+  `include "sequences/soc/minisoc_virtual_base_sequence.svh"
+  `include "sequences/soc/minisoc_virtual_smoke_sequence.svh"
 
   // ================================================================
   // ===================          T E S T         ===================
@@ -135,4 +163,5 @@ package minisoc_pkg;
   `include "tests/soc/minisoc_test_random_constrained.svh"
   `include "tests/soc/minisoc_test_reset_clock.svh"
   `include "tests/soc/minisoc_test_ditl.svh"
+  `include "tests/soc/minisoc_test_smoke.svh"
 endpackage

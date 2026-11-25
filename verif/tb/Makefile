@@ -3,7 +3,7 @@
 SIM          ?= vcs
 UVM_VERSION  ?= uvm-1.2
 UVM_SEED     ?= 1
-UVM_TESTNAME ?= minisoc_test_ditl
+UVM_TESTNAME ?= minisoc_test_smoke
 VERDI        ?= verdi
 TB_DIR := $(CURDIR)
 VERDI_CMD_DIR := $(TB_DIR)/../cmd
@@ -56,6 +56,12 @@ IF_FILES := \
 	$(TB_DIR)/agents/mem/mem_if.sv \
 	$(TB_DIR)/agents/spi/spi_if.sv
 
+PARAMS_PKG_FILES := \
+    $(TB_DIR)/agents/clk/clk_params_pkg.sv \
+    $(TB_DIR)/agents/rst/rst_params_pkg.sv \
+    $(TB_DIR)/agents/mem/mem_params_pkg.sv \
+    $(TB_DIR)/agents/spi/spi_params_pkg.sv
+
 PKG_FILE := $(TB_DIR)/top_pkg.sv
 TB_TOP   := $(TB_DIR)/top_tb.sv
 
@@ -106,8 +112,13 @@ all: clean compile run gui
 compile:
 	@mkdir -p $(LOG_DIR)
 	@echo "[VCS] Compiling $(UVM_TESTNAME)"
-	cd $(OUT_DIR) && $(SIM) $(COMPILE_FLAGS) $(DUT_FILES) $(IF_FILES) $(PKG_FILE) $(TB_TOP) -top top_tb -o $(SIMV)
-
+	cd $(OUT_DIR) && $(SIM) $(COMPILE_FLAGS) \
+		$(DUT_FILES) \
+		$(IF_FILES) \
+		$(PARAMS_PKG_FILES) \
+		$(PKG_FILE) \
+		$(TB_TOP) \
+		-top top_tb -o $(SIMV)
 run:
 	@mkdir -p $(LOG_DIR)
 	@echo "[VCS] Running $(UVM_TESTNAME)"

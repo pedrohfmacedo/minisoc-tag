@@ -1,6 +1,3 @@
-task run_phase(uvm_phase phase);
-
-    phase.raise_objection(this);
 
     // Start clock
 
@@ -25,7 +22,3 @@ task run_phase(uvm_phase phase);
     // Read and compare ciphertext
 
     // Disable PLL
-
-    phase.drop_objection(this);
-
-endtask
