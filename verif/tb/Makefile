@@ -3,7 +3,7 @@
 SIM          ?= vcs
 UVM_VERSION  ?= uvm-1.2
 UVM_SEED     ?= 1
-UVM_TESTNAME ?= minisoc_test_mem
+UVM_TESTNAME ?= minisoc_test_ditl
 VERDI        ?= verdi
 TB_DIR := $(CURDIR)
 VERDI_CMD_DIR := $(TB_DIR)/../cmd

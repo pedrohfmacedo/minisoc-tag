@@ -1,0 +1,31 @@
+task run_phase(uvm_phase phase);
+
+    phase.raise_objection(this);
+
+    // Start clock
+
+    // Apply reset
+
+    // Check initial system status
+
+    // Write plaintext to memory
+
+    // Configure AES registers
+
+    // Enable PLL and wait for lock
+
+    // Transfer memory ownership to AES
+
+    // Start encryption
+
+    // Wait for AES completion
+
+    // Return memory ownership
+
+    // Read and compare ciphertext
+
+    // Disable PLL
+
+    phase.drop_objection(this);
+
+endtask
