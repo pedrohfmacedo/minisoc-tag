@@ -1,0 +1,151 @@
+Intenções dos Drivers e Monitors dos Agentes UVM
+================================================
+
+Visão geral
+-----------
+
+Os drivers traduzem os *_item recebidos das sequências em sinais reais na interface
+virtual do DUT. Os monitors observam passivamente esses sinais, reconstroem as
+transações e publicam *_item pelos analysis ports. Drivers estimulam; monitors observam.
+
+Agente de clock
+---------------
+
+DRIVER - clk_driver
+
+Intenção:
+Gerar continuamente o sinal clk e permitir alterar período, fases alta e baixa e
+duração do perfil.
+
+Comportamento:
+- Inicializa clk_if.clk em nível baixo.
+- Usa clk_cfg como referência inicial de período e duty cycle.
+- Gera ciclos continuamente com time_low_ps e time_high_ps.
+- Recebe clk_item e valida time_low_ps + time_high_ps == period_ps.
+- Aplica nova configuração na borda negativa.
+- Mantém o perfil por cycles ciclos positivos e confirma a transação.
+
+MONITOR - clk_monitor
+
+Intenção:
+Observar passivamente os ciclos reais e calcular o período e as fases alta e baixa.
+
+Comportamento:
+- Obtém clk_if.
+- Mede uma borda positiva até a borda negativa e até a próxima borda positiva.
+- Calcula period_ps, time_high_ps e time_low_ps em clk_item.
+- Publica o item observado pelo analysis port.
+- Fornece evidência independente de que o perfil foi aplicado corretamente.
+
+Agente de reset
+---------------
+
+DRIVER - rst_driver
+
+Intenção:
+Conduzir rst_n em nível baixo ativo e aplicar afirmação ou deassertivação no modo
+assíncrono ou síncrono.
+
+Comportamento:
+- Inicializa rst_n em nível baixo.
+- Recebe rst_item.
+- No modo assíncrono, espera duration picosegundos.
+- No modo síncrono, espera cycles bordas positivas ou negativas.
+- Aplica req.is_high e conclui a transação.
+
+MONITOR - rst_monitor
+
+Intenção:
+Observar todas as mudanças de rst_n e publicar seu estado sem interferir no estímulo.
+
+Comportamento:
+- Obtém rst_if.
+- Publica o estado inicial conhecido.
+- Detecta bordas positiva e negativa de rst_n.
+- Cria rst_item observado com is_high.
+- Ignora estados desconhecidos e publica cada mudança pelo analysis port.
+
+Agente de memória
+-----------------
+
+DRIVER - mem_driver
+
+Intenção:
+Gerar operações de leitura ou escrita na interface de memória e formar um pulso de
+mem_clk para cada item recebido.
+
+Comportamento:
+- Recupera mem_cfg e mem_if.
+- Inicializa mem_clk, mem_i_data, mem_i_addr e mem_i_wr_en.
+- Recebe mem_item.
+- Usa req.period_ps quando positivo; caso contrário, usa cfg.period_ps.
+- Coloca endereço, dado e habilitação de escrita na interface.
+- Mantém mem_clk baixo por metade do período, eleva-o e retorna-o ao nível baixo.
+- Confirma a transação ao sequenciador.
+
+MONITOR - mem_monitor
+
+Intenção:
+Capturar passivamente operações de memória em bordas positivas de mem_clk e reconstruir
+cada transação observada.
+
+Comportamento:
+- Recupera mem_cfg e mem_if.
+- Aguarda bordas positivas de mem_clk.
+- Lê addr e wr_en.
+- Em escrita, lê mem_i_data.
+- Em leitura, lê mem_o_data.
+- Usa cfg.period_ps como período observado.
+- Publica mem_item pelo analysis port.
+
+Agente SPI
+----------
+
+DRIVER - spi_driver
+
+Intenção:
+Gerar frames SPI de 40 bits para escrita e leitura, controlar CS_N e SCLK no modo
+SPI 0 e devolver o dado recebido ao item da transação.
+
+Comportamento:
+- Recupera spi_cfg e spi_if.
+- Inicializa SCLK baixo, CS_N inativo em alto e MOSI baixo.
+- Usa req.period_ps quando positivo; caso contrário, usa cfg.period_ps.
+- Monta escrita com R/W = 0, endereço de seis bits, reservado = 0 e dado de 32 bits.
+- Para leitura, transmite solicitação seguida de frame NOP.
+- Transmite cada frame do bit mais significativo ao menos significativo.
+- Eleva SCLK para capturar MISO e o baixa para concluir o bit.
+- Mantém CS_N ativo durante o frame e inativo entre operações.
+- Coloca o dado capturado no frame NOP em req.read_data.
+
+MONITOR - spi_monitor
+
+Intenção:
+Capturar passivamente frames SPI, reconstruir operações lógicas e validar o protocolo.
+
+Comportamento:
+- Recupera spi_cfg e spi_if.
+- Detecta a ativação de CS_N e captura 40 transições de amostragem.
+- Decodifica MOSI e MISO como frames de 40 bits.
+- Valida bit reservado, comprimento, sinais desconhecidos e estado de SCLK.
+- Diferencia escrita, solicitação de leitura e NOP.
+- Mantém uma leitura pendente até receber o frame NOP correspondente.
+- Publica uma leitura ou escrita lógica pelo analysis port.
+- Detecta sequências inválidas, NOP inesperado e operações inválidas.
+
+Responsabilidades comuns dos drivers
+------------------------------------
+
+- Obtêm interface virtual e configuração na fase de build.
+- Transformam *_item em estímulo físico.
+- Tratam itens nulos ou configurações ausentes como erros fatais.
+- Concluem transações por seq_item_port.item_done().
+
+Responsabilidades comuns dos monitors
+-------------------------------------
+
+- Obtêm a interface virtual passivamente.
+- Não alteram os sinais do DUT.
+- Reconstróem *_item a partir das formas de onda observadas.
+- Publicam transações pelos analysis ports.
+- Fornecem dados independentes para cobertura e detecção de erros.

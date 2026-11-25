@@ -1,0 +1,143 @@
+# Intenções dos Drivers dos Agentes UVM
+
+Este documento registra o propósito e o comportamento pretendido dos drivers utilizados
+nos agentes de clock, reset, memória e SPI da verificação do MiniSoC.
+
+## Visão geral
+
+Os drivers são responsáveis por traduzir os `*_item` gerados pelas sequências em sinais
+e temporizações reais na interface virtual do DUT. Cada agente mantém uma configuração
+para parâmetros padrão e uma sequência de itens para definir cenários específicos.
+
+## Agente de clock — `clk_driver`
+
+### Intenção
+
+Gerar o sinal de clock do ambiente UVM de forma contínua e permitir que uma sequência
+altere o período, as fases alta e baixa e a duração da aplicação de um perfil.
+
+### Comportamento implementado
+
+- Inicializa `clk_if.clk` em nível baixo.
+- Usa `clk_cfg` como referência inicial de período, duty cycle e limites válidos.
+- Gera continuamente ciclos com `time_low_ps` e `time_high_ps`.
+- Recebe `clk_item` pela porta do sequenciador.
+- Valida período, duração das fases e relação:
+  `time_low_ps + time_high_ps == period_ps`.
+- Aplica uma nova configuração na borda negativa do clock.
+- Mantém o perfil novo durante `cycles` ciclos positivos e, depois, confirma a
+  conclusão da transação ao sequenciador.
+- Reporta a configuração aplicada por meio de `uvm_info`.
+
+### Dados de entrada
+
+`clk_item` contém `period_ps`, `time_low_ps`, `time_high_ps` e `cycles`. Os limites de
+período aceitos pelo driver são definidos pela configuração do agente.
+
+### Objetivo de verificação
+
+Exercitar períodos nominais e aleatórios, os limites configurados e a alteração correta
+do relógio em momentos controlados. A cobertura de duty cycle variável e jitter fica
+fora desta implementação até que existam requisitos aprovados.
+
+## Agente de reset — `rst_driver`
+
+### Intenção
+
+Conduzir o sinal de reset em nível baixo ativo e permitir transições assíncronas baseadas
+em tempo ou transições síncronas relacionadas a bordas do clock.
+
+### Comportamento implementado
+
+- Inicializa `rst_n` em nível baixo no início da fase de execução.
+- Recebe `rst_item` pela porta do sequenciador.
+- No modo assíncrono, aguarda uma duração expressa em picosegundos antes de aplicar
+  o estado solicitado.
+- No modo síncrono, aguarda o número de bordas positivas ou negativas escolhido pelo
+  item antes de aplicar o estado.
+- Após a espera, atribui `rst_n <= req.is_high` e conclui a transação.
+
+### Dados de entrada
+
+`rst_item` contém o estado final (`is_high`), o modo assíncrono ou síncrono, a duração,
+os ciclos e a borda selecionada para o modo síncrono.
+
+### Objetivo de verificação
+
+Exercitar reset assíncrono, reset síncrono, afirmação em borda positiva ou negativa e
+deassertivação controlada pelo relógio.
+
+## Agente de memória — `mem_driver`
+
+### Intenção
+
+Gerar operações simples de leitura ou escrita na interface de memória e formar um pulso
+de clock em cada item recebido. O driver separa os dados da transação da temporização,
+permitindo que uma operação use o período padrão ou um período individual.
+
+### Comportamento implementado
+
+- Recupera `mem_cfg` e a interface virtual da memória.
+- Inicializa `mem_clk`, `mem_i_data`, `mem_i_addr` e `mem_i_wr_en` em estado conhecido.
+- Recebe `mem_item` pela porta do sequenciador.
+- Descarta o item como erro fatal caso seja nulo.
+- Usa `req.period_ps` quando positivo; caso contrário, usa `cfg.period_ps`.
+- Coloca endereço, dado e habilitação de escrita nos sinais da interface.
+- Mantém `mem_clk` baixo por metade do período, eleva-o e o mantém alto pela segunda
+  metade; em seguida, retorna o clock ao nível baixo.
+- Confirma o término da transação ao sequenciador e registra os dados aplicados.
+
+### Dados de entrada
+
+`mem_item` contém endereço, dado de 32 bits, sinal de escrita e período opcional. Os
+valores inválidos de período são substituídos pelo período da configuração.
+
+### Objetivo de verificação
+
+Exercitar leitura e escrita com diferentes endereços e dados, além de observar como o
+DUT reage ao pulso de clock associado a cada operação.
+
+## Agente SPI — `spi_driver`
+
+### Intenção
+
+Gerar transações SPI no formato de 40 bits esperado pelo bloco do MiniSoC. O driver
+deve distinguir operações de escrita e leitura, controlar chip select e clock no modo
+SPI 0 e devolver dados recebidos para o item da transação.
+
+### Comportamento implementado
+
+- Recupera `spi_cfg` e a interface virtual SPI.
+- Inicializa `spi_sclk` em baixo, `spi_cs_n` inativo em alto e `spi_mosi` em baixo.
+- Usa `req.period_ps` quando positivo; caso contrário, usa `cfg.period_ps`.
+- Monta uma escrita de 40 bits com:
+  bit R/W igual a zero, endereço de seis bits, bit reservado igual a zero e dado de
+  32 bits.
+- Monta uma leitura com um primeiro frame de solicitação e um frame NOP de resposta.
+- Transmite cada frame começando pelo bit mais significativo (`i = 39`).
+- Mantém `spi_sclk` baixo para posicionar MOSI, eleva o clock para a borda de captura,
+  lê MISO e retorna o clock ao nível baixo.
+- Ativa o chip select durante a transferência e o desativa entre operações.
+- Para leitura, salva os 32 bits menos significativos do frame NOP recebido em
+  `req.read_data`.
+- Confirma o término da transação ao sequenciador.
+
+### Dados de entrada
+
+`spi_item` contém tipo da operação, endereço registrado, dado de escrita, dado de
+leitura observado e período da transferência. O período mínimo usado pela restrição
+do item é de 40 ns, correspondente a uma frequência máxima de 25 MHz.
+
+### Objetivo de verificação
+
+Exercitar escrita em registradores, solicitação de leitura, frame NOP, endereços válidos,
+dados aleatórios, captura de MISO e temporização do chip select.
+
+## Pontos comuns aos drivers
+
+- Todos obtêm a interface virtual e a configuração necessária na fase de build.
+- Itens nulos ou configurações essenciais ausentes são tratados como erros fatais.
+- Cada transação é concluída por `seq_item_port.item_done()`.
+- O driver informa transações aplicadas por meio de mensagens UVM para diagnóstico.
+- A intenção é manter o timing e a montagem dos sinais próximos ao DUT, deixando
+  políticas de cenário para sequências e testes.
